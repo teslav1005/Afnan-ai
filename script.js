@@ -151,11 +151,12 @@ const toggleAttachMenu = (e) => {
     console.log('Attach menu toggled:', !dom.attachMenu.classList.contains('hidden'));
 };
 
-// Use both click and touchstart for maximum responsiveness
-dom.attachBtn.addEventListener('click', toggleAttachMenu);
-dom.attachBtn.addEventListener('touchstart', (e) => {
-    toggleAttachMenu(e);
-}, { passive: false });
+// Use click with stopPropagation to prevent immediate closing from global listener
+dom.attachBtn.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dom.attachMenu.classList.toggle('hidden');
+};
 
 const imageInput = document.getElementById('imageInput');
 const fileInput = document.getElementById('fileInput');
@@ -411,6 +412,20 @@ window.handleSend = async () => {
             });
         }
     } catch (e) { console.error(e); typing.remove(); }
+};
+
+// New Chat Button Logic
+dom.newChatBtn.onclick = () => {
+    currentChatId = null;
+    dom.messageBox.innerHTML = '';
+    dom.emptyView.style.display = 'flex';
+    dom.attachmentPreview.classList.add('hidden');
+    dom.attachmentPreview.innerHTML = '';
+    pendingAttachment = null;
+    currentMode = null;
+    dom.activeModeIndicator.classList.add('hidden');
+    if(window.innerWidth < 768) toggleSidebar(false);
+    window.toast("بدء محادثة جديدة");
 };
 
 dom.sendBtn.onclick = window.handleSend;
