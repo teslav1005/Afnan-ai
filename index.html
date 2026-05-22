@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Afnan ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="app.css">
+    <script src="security.js"></script>
+    <script src="app.js" defer></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --user-msg-bg: #F4F4F4;
+            --bot-msg-bg: #FFFFFF;
+        }
+        .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--glass-bg); border: 1px solid var(--glass-border); }
+        .sidebar-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Message Layout */
+        .msg-user { align-self: flex-end; margin-left: 20%; }
+        .msg-bot { align-self: flex-start; margin-right: 20%; }
+        
+        /* Custom Scrollbar */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Long Press Context Menu */
+        #contextMenu { position: fixed; z-index: 5000; display: none; min-width: 160px; }
+        
+        /* Model Selector Top Right */
+        #modelSelectorTop { position: absolute; top: 12px; left: 24px; z-index: 1000; }
+    </style>
+</head>
+<body class="antialiased text-gray-900 bg-white">
+
+    <div id="overlay" class="fixed inset-0 bg-black/10 backdrop-blur-[2px] hidden transition-opacity duration-300 opacity-0" style="z-index: 100;"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-[#fcfcfc] border-r border-gray-100 flex flex-col transform -translate-x-full md:translate-x-0 sidebar-transition h-full shadow-sm md:shadow-none">
+        <div class="p-4 flex flex-col gap-4">
+            <button id="newChatBtn" class="flex items-center gap-3 w-full bg-white border border-gray-100 p-3.5 rounded-2xl hover:bg-gray-50 transition-all shadow-sm active:scale-95">
+                <img src="https://i.postimg.cc/TYd6FZy0/grok-image-x6em5fj-edit-96291120058942.png" alt="Logo" class="w-5 h-5">
+                <span class="font-bold text-gray-700 text-sm">محادثة جديدة</span>
+            </button>
+            
+            <!-- Search in History -->
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="historySearch" placeholder="بحث في المحادثات..." class="w-full bg-gray-100 border-none rounded-xl py-2 pr-9 pl-3 text-xs focus:ring-1 focus:ring-gray-200">
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto px-4 space-y-4 hide-scrollbar" id="historyList">
+            <!-- Sections: Pinned, Favorites, Recent -->
+            <div id="pinnedSection" class="space-y-1 hidden">
+                <p class="text-[10px] font-bold text-gray-400 px-2 mb-2">المثبتة</p>
+                <div id="pinnedList" class="space-y-1"></div>
+            </div>
+            <div id="favoritesSection" class="space-y-1 hidden">
+                <p class="text-[10px] font-bold text-gray-400 px-2 mb-2">المفضلة</p>
+                <div id="favoritesList" class="space-y-1"></div>
+            </div>
+            <div id="recentSection" class="space-y-1">
+                <p class="text-[10px] font-bold text-gray-400 px-2 mb-2">الأخيرة</p>
+                <div id="recentList" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-100 space-y-1 relative" id="profileSection"></div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 h-full relative">
+        <header class="h-[64px] flex items-center justify-between px-6 border-b border-gray-50 bg-white/80 backdrop-blur-md shrink-0 relative">
+            <div class="flex items-center gap-4">
+                <button id="sidebarToggle" class="flex flex-col gap-1.5 p-1 md:hidden">
+                    <span class="w-6 h-0.5 bg-gray-600 rounded-full"></span>
+                    <span class="w-4 h-0.5 bg-gray-600 rounded-full"></span>
+                </button>
+            </div>
+
+            <!-- Model Selector (Top Left - Replaces Login Btn) -->
+            <div id="modelSelectorTop" class="hidden">
+                <button id="currentModelBtn" class="glass px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white/90 transition-all">
+                    <span id="activeModelName">Afnan-Fishe</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+                </button>
+                
+                <!-- Model Dropdown (Glass) -->
+                <div id="modelDropdown" class="glass absolute top-full left-0 mt-2 w-48 rounded-2xl shadow-xl hidden animate-pop overflow-hidden">
+                    <div class="p-1.5 space-y-0.5">
+                        <div onclick="window.selectModel('Afnan-Fishe', 'Fishe')" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center justify-between transition-all">
+                            <span class="text-xs font-bold">Afnan-Fishe</span>
+                            <i class="fa-solid fa-fish text-blue-500 text-[10px]"></i>
+                        </div>
+                        <div onclick="window.selectModel('Afnan-Pro', 'Pro')" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center justify-between transition-all">
+                            <span class="text-xs font-bold">Afnan-Pro</span>
+                            <i class="fa-solid fa-star text-purple-500 text-[10px]"></i>
+                        </div>
+                        <div onclick="window.selectModel('Agent Swarm', 'Swarm')" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center justify-between transition-all border-t border-white/20 mt-1 pt-2">
+                            <span class="text-xs font-bold">Agent Swarm</span>
+                            <i class="fa-solid fa-users-rays text-green-500 text-[10px]"></i>
+                        </div>
+                        <div onclick="window.selectModel('Agent', 'Agent')" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center justify-between transition-all">
+                            <span class="text-xs font-bold">Agent</span>
+                            <i class="fa-solid fa-user-gear text-gray-500 text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="authButtons">
+                <button id="loginBtnHeader" onclick="window.navigateToPage('login.html')" class="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-800 transition-all">تسجيل الدخول</button>
+            </div>
+        </header>
+
+        <div id="chatWindow" class="flex-1 overflow-y-auto hide-scrollbar scroll-smooth bg-white">
+            <div id="emptyView" class="min-h-full flex flex-col items-center justify-center text-center p-12 opacity-30 select-none">
+                <img src="https://i.postimg.cc/TYd6FZy0/grok-image-x6em5fj-edit-96291120058942.png" class="w-20 h-20 mb-4 grayscale" alt="Logo">
+                <h2 class="text-2xl font-bold">Afnan ai</h2>
+            </div>
+            <div id="messageBox" class="max-w-4xl mx-auto p-4 md:p-8 flex flex-col gap-8"></div>
+        </div>
+
+        <div class="w-full bg-white p-4 md:p-8 pt-2 shrink-0 safe-pb">
+            <div class="max-w-3xl mx-auto relative">
+                
+                <div id="inputContainer" class="chat-input-container bg-[#F4F4F4] rounded-[2.2rem] flex flex-col shadow-sm transition-all relative overflow-hidden">
+                    
+                    <!-- Integrated Attachment Preview (Inside Input) -->
+                    <div id="attachmentPreview" class="px-4 pt-3 hidden flex-wrap gap-2 border-b border-gray-200/50 pb-2">
+                        <!-- Preview content will be injected here -->
+                    </div>
+
+                    <div class="flex items-end gap-1.5 p-1.5 focus-within:bg-white rounded-[2.2rem] relative transition-all duration-300">
+                        
+                        <div class="relative flex items-center gap-1">
+                            <button id="mainAttachBtn" type="button" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-900 bg-white shadow-sm cursor-pointer transition-all active:scale-90" style="z-index: 1100;">
+                                <i class="fa-solid fa-plus text-lg pointer-events-none"></i>
+                            </button>
+
+                            <!-- Active Mode Icon (No Background, Colored) -->
+                            <div id="activeModeIndicator" class="hidden relative group items-center justify-center w-8 h-8 transition-all duration-300">
+                                <i id="modeIcon" class="fa-solid fa-brain text-lg"></i>
+                                <button id="cancelModeBtn" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] border border-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                            
+                            <!-- Attachment Menu (Glass) -->
+                            <div id="mainAttachMenu" class="glass p-1.5 hidden" style="position: absolute; bottom: 55px; right: 0; width: 220px; z-index: 1200; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); animation: slideUp 0.2s ease-out;">
+                                <div class="space-y-0.5">
+                                    <div id="optImage" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-700">إرفاق صور</span>
+                                        <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-image text-blue-500 text-xs"></i></div>
+                                    </div>
+                                    <div id="optFile" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-700">إرفاق ملفات</span>
+                                        <div class="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-paperclip text-purple-500 text-xs"></i></div>
+                                    </div>
+                                    <div id="optWeb" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-700">البحث في الويب</span>
+                                        <div class="w-8 h-8 bg-green-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-globe text-green-500 text-xs"></i></div>
+                                    </div>
+                                    <div id="optBrain" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-700">التفكير العميق</span>
+                                        <div class="w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-lightbulb text-yellow-500 text-xs"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="file" id="imageInput" accept="image/*" class="hidden">
+                        <input type="file" id="fileInput" class="hidden">
+                        
+                        <textarea id="chatInput" rows="1" placeholder="اسأل Afnan ai..." class="flex-1 bg-transparent border-none focus:ring-0 py-3 px-2 text-[16px] resize-none max-h-40 hide-scrollbar" dir="auto"></textarea>
+                        
+                        <div class="flex items-center gap-2 mb-1 mr-1">
+                            <button id="sendBtn" class="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center disabled:opacity-50 transition-all active:scale-90"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Context Menu (Glass) -->
+    <div id="contextMenu" class="glass rounded-2xl shadow-2xl overflow-hidden animate-pop">
+        <div class="p-1.5 space-y-0.5">
+            <div id="ctxPin" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center gap-3 transition-all">
+                <i class="fa-solid fa-thumbtack text-blue-500 text-xs"></i>
+                <span class="text-xs font-bold">تثبيت المحادثة</span>
+            </div>
+            <div id="ctxFav" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center gap-3 transition-all">
+                <i class="fa-solid fa-star text-yellow-500 text-xs"></i>
+                <span class="text-xs font-bold">إضافة للمفضلة</span>
+            </div>
+            <div id="ctxDel" class="p-3 hover:bg-red-50 rounded-xl cursor-pointer flex items-center gap-3 transition-all text-red-500">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+                <span class="text-xs font-bold">حذف المحادثة</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewer" class="fixed inset-0 bg-black z-[4000] hidden flex-col">
+        <div class="flex justify-between items-center p-6 text-white">
+            <button onclick="window.closeImageViewer()" class="text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            <button id="deleteImageBtn" class="text-xl text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+        <div class="flex-1 flex items-center justify-center p-4">
+            <img id="viewerImg" src="index.html" class="max-w-full max-h-full object-contain rounded-xl">
+        </div>
+    </div>
+
+    <div id="logoutConfirm" class="hidden fixed inset-0 bg-black/40 z-[9999] items-center justify-center">
+        <div class="glass p-8 rounded-3xl text-center max-w-xs w-full mx-4 shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">هل أنت متأكد من تسجيل الخروج؟</h3>
+            <div class="flex gap-4">
+                <button id="confirmYes" class="flex-1 bg-black text-white py-3 rounded-2xl font-bold">نعم</button>
+                <button id="confirmNo" class="flex-1 bg-gray-100 text-gray-800 py-3 rounded-2xl font-bold">لا</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
