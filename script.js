@@ -151,11 +151,29 @@ const toggleAttachMenu = (e) => {
     console.log('Attach menu toggled:', !dom.attachMenu.classList.contains('hidden'));
 };
 
-// Use click with stopPropagation to prevent immediate closing from global listener
-dom.attachBtn.onclick = (e) => {
+// Use click with stopPropagation and ensure it works on all devices
+const handleAttachClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dom.attachMenu.classList.toggle('hidden');
+    const isHidden = dom.attachMenu.classList.contains('hidden');
+    
+    // Close other menus
+    dom.modelDropdown.classList.add('hidden');
+    dom.contextMenu.style.display = 'none';
+    
+    if (isHidden) {
+        dom.attachMenu.classList.remove('hidden');
+    } else {
+        dom.attachMenu.classList.add('hidden');
+    }
+};
+
+dom.attachBtn.onclick = handleAttachClick;
+dom.attachBtn.ontouchstart = (e) => {
+    // Only handle if it's a single touch to avoid conflicts
+    if (e.touches.length === 1) {
+        handleAttachClick(e);
+    }
 };
 
 const imageInput = document.getElementById('imageInput');
@@ -442,13 +460,14 @@ window.toast = (msg) => {
 
 window.navigateToPage = (page) => window.location.href = page;
 window.addEventListener('click', (e) => {
-    if (!dom.modelSelectorTop.contains(e.target)) {
+    if (dom.modelSelectorTop && !dom.modelSelectorTop.contains(e.target)) {
         dom.modelDropdown.classList.add('hidden');
     }
-    if (!dom.contextMenu.contains(e.target)) {
+    if (dom.contextMenu && !dom.contextMenu.contains(e.target)) {
         dom.contextMenu.style.display = 'none';
     }
-    if (!dom.attachBtn.contains(e.target) && !dom.attachMenu.contains(e.target)) {
+    // Fixed: Ensure clicking the button itself or its contents doesn't trigger this close logic
+    if (dom.attachBtn && dom.attachMenu && !dom.attachBtn.contains(e.target) && !dom.attachMenu.contains(e.target)) {
         dom.attachMenu.classList.add('hidden');
     }
 });
