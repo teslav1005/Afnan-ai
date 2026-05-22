@@ -207,19 +207,19 @@ const showAttachmentPreview = (file, isImage) => {
     reader.onload = (e) => {
         pendingAttachment = { name: file.name, data: e.target.result, type: isImage ? 'image' : 'file' };
         const item = document.createElement('div');
-        item.className = 'relative w-20 h-20 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group p-1 animate-pop';
+        item.className = 'floating-preview animate-pop';
         if (isImage) {
             item.innerHTML = `
-                <img src="${e.target.result}" class="w-full h-full object-cover rounded-lg cursor-pointer" onclick="window.openImageViewer('${e.target.result}')">
-                <button onclick="window.removeAttachment()" class="absolute top-1 right-1 w-5 h-5 bg-black/70 text-white rounded-full flex items-center justify-center text-[10px] border border-white shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+                <img src="${e.target.result}" alt="Preview" onclick="window.openImageViewer('${e.target.result}')">
+                <button onclick="window.removeAttachment()" class="remove-btn"><i class="fa-solid fa-xmark"></i></button>
             `;
         } else {
             item.innerHTML = `
                 <div class="w-full h-full flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-                    <i class="fa-solid fa-file text-gray-400 text-xl"></i>
-                    <span class="text-[8px] px-1 truncate w-full text-center mt-1">${file.name}</span>
+                    <i class="fa-solid fa-file text-gray-400 text-lg"></i>
+                    <span class="text-[7px] px-1 truncate w-full text-center mt-0.5">${file.name}</span>
                 </div>
-                <button onclick="window.removeAttachment()" class="absolute top-1 right-1 w-5 h-5 bg-black/70 text-white rounded-full flex items-center justify-center text-[10px] border border-white shadow-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="window.removeAttachment()" class="remove-btn"><i class="fa-solid fa-xmark"></i></button>
             `;
         }
         dom.attachmentPreview.appendChild(item);
