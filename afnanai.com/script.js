@@ -344,16 +344,16 @@ const appendMessage = (sender, text, attachment) => {
     
     let content = text;
     if (attachment) {
-        if (attachment.type === 'image') content = `<div class="flex flex-col gap-2"><img src="${attachment.data}" class="w-32 h-32 object-cover rounded-xl shadow-sm cursor-pointer hover:opacity-90 transition-opacity" onclick="window.openImageViewer('${attachment.data}')">${text ? `<p>${text}</p>` : ''}</div>`;
-        else content = `<div class="flex items-center gap-2 bg-gray-50 p-3 rounded-2xl border border-gray-100 mb-2"><i class="fa-solid fa-file text-gray-400"></i><span class="text-xs font-bold">${attachment.name}</span></div><p>${text}</p>`;
+        if (attachment.type === 'image') content = `<div class="flex flex-col gap-2.5"><img src="${attachment.data}" class="w-24 h-24 object-cover rounded-lg shadow-md cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200" onclick="window.openImageViewer('${attachment.data}')" style="box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);">${text ? `<p class="text-sm leading-relaxed">${text}</p>` : ''}</div>`;
+        else content = `<div class="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg border border-gray-150 mb-2 shadow-sm hover:shadow-md transition-shadow" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);"><i class="fa-solid fa-file text-gray-500"></i><span class="text-xs font-semibold text-gray-700">${attachment.name}</span></div><p class="text-sm leading-relaxed">${text}</p>`;
     }
 
     if (sender === 'user') {
-        div.innerHTML = `<div class="bg-[#F4F4F4] px-5 py-3.5 rounded-[1.8rem] rounded-tr-md max-w-[75%] text-gray-800 text-[14px] shadow-sm ml-4">${content}</div>`;
+        div.innerHTML = `<div class="bg-[#F4F4F4] px-5 py-3.5 rounded-[1.8rem] rounded-tr-md max-w-[75%] text-gray-800 text-[14px] shadow-md ml-4" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);">${content}</div>`;
     } else {
         div.innerHTML = `
             <div class="flex flex-col items-start max-w-[75%] mr-4">
-                <div class="bg-white border border-gray-100 px-5 py-3.5 rounded-[1.8rem] rounded-tl-md text-gray-800 text-[14px] shadow-sm mb-2">${content}</div>
+                <div class="bg-white border border-gray-100 px-5 py-3.5 rounded-[1.8rem] rounded-tl-md text-gray-800 text-[14px] shadow-md mb-2" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);">${content}</div>
                 <div class="flex items-center gap-4 px-2 text-gray-300">
                     <i class="fa-regular fa-copy hover:text-gray-600 cursor-pointer transition-all" onclick="window.copyText('${text}')"></i>
                     <i class="fa-regular fa-thumbs-up hover:text-blue-500 cursor-pointer transition-all"></i>
