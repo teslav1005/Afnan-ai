@@ -1,0 +1,15 @@
+./index.html:    <script src="security.js"></script>
+./index.html:    <script src="app.js" defer></script>
+./index.html:    <script type="module" src="script.js"></script>
+./script.js:import { auth, db } from './api.js';
+./script.js:import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+./script.js:import { collection, addDoc, query, where, getDocs, doc, updateDoc, orderBy, deleteDoc, arrayUnion, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+./.git/hooks/fsmonitor-watchman.sample:	# open (my $fh, ">", ".git/watchman-query.json");
+./.git/hooks/fsmonitor-watchman.sample:	# open ($fh, ">", ".git/watchman-response.json");
+./login.html:    <script src="security.js"></script>
+./login.html:        import { auth } from './api.js';
+./login.html:        import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+./delete-account.html:    <script src="security.js"></script>
+./delete-account.html:        import { auth } from './api.js';
+./privacy.html:    <script src="security.js"></script>
+./terms.html:    <script src="security.js"></script>
