@@ -170,6 +170,7 @@ const handleAttachClick = (e) => {
 
 dom.attachBtn.onclick = handleAttachClick;
 dom.attachBtn.ontouchstart = (e) => {
+    // Only handle if it's a single touch to avoid conflicts
     if (e.touches.length === 1) {
         handleAttachClick(e);
     }
@@ -343,7 +344,7 @@ const appendMessage = (sender, text, attachment) => {
     
     let content = text;
     if (attachment) {
-        if (attachment.type === 'image') content = `<img src="${attachment.data}" class="max-w-xs rounded-2xl shadow-sm mb-2 cursor-pointer" onclick="window.openImageViewer('${attachment.data}')"><p>${text}</p>`;
+        if (attachment.type === 'image') content = `<div class="flex flex-col gap-2"><img src="${attachment.data}" class="w-32 h-32 object-cover rounded-xl shadow-sm cursor-pointer hover:opacity-90 transition-opacity" onclick="window.openImageViewer('${attachment.data}')">${text ? `<p>${text}</p>` : ''}</div>`;
         else content = `<div class="flex items-center gap-2 bg-gray-50 p-3 rounded-2xl border border-gray-100 mb-2"><i class="fa-solid fa-file text-gray-400"></i><span class="text-xs font-bold">${attachment.name}</span></div><p>${text}</p>`;
     }
 
@@ -465,7 +466,20 @@ window.addEventListener('click', (e) => {
     if (dom.contextMenu && !dom.contextMenu.contains(e.target)) {
         dom.contextMenu.style.display = 'none';
     }
+    // Fixed: Ensure clicking the button itself or its contents doesn't trigger this close logic
     if (dom.attachBtn && dom.attachMenu && !dom.attachBtn.contains(e.target) && !dom.attachMenu.contains(e.target)) {
         dom.attachMenu.classList.add('hidden');
     }
 });
+
+window.openImageViewer = (src) => {
+    dom.viewerImg.src = src;
+    dom.imageViewer.style.display = 'flex';
+    dom.imageViewer.classList.remove('hidden');
+};
+
+window.closeImageViewer = () => {
+    dom.imageViewer.style.display = 'none';
+    dom.imageViewer.classList.add('hidden');
+    dom.viewerImg.src = '';
+};
