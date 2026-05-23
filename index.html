@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Afnan ai</title>
+    <meta name="description" content="Afnan AI - منصة ذكية للدردشة والتواصل مع نماذج AI متقدمة. استمتع بتجربة محادثة سلسة وآمنة مع Afnan Fishe و Afnan Pro و Agent Swarm.">
+    <meta name="keywords" content="AI, دردشة ذكية, محادثة, Afnan AI, نموذج لغة, تطبيق ذكي, chatbot">
+    <meta name="author" content="Afnan AI">
+    <meta property="og:title" content="Afnan AI - منصة الدردشة الذكية">
+    <meta property="og:description" content="تحدث مع نماذج AI متقدمة وأنجز مهامك بكفاءة أعلى.">
+    <meta property="og:image" content="/logo.jpg">
+    <meta name="theme-color" content="#0891b2">
+    <link rel="icon" type="image/jpeg" href="/logo.jpg">
+    <title>Afnan AI - منصة الدردشة الذكية | محادثة ذكية مع AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -128,7 +136,7 @@
             <div id="messageBox" class="max-w-4xl mx-auto p-4 md:p-8 flex flex-col gap-8"></div>
         </div>
 
-        <div class="w-full bg-white p-4 md:p-8 pt-2 shrink-0 safe-pb">
+        <div class="w-full bg-white p-4 md:p-8 pt-5 shrink-0 safe-pb" style="margin-top: 3px;">
             <div class="max-w-3xl mx-auto relative">
                 
                 <div id="inputContainer" class="chat-input-container bg-white border border-gray-200 rounded-[2.2rem] flex flex-col shadow-lg transition-all relative" style="box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);">
@@ -141,7 +149,7 @@
                     <div class="flex items-end gap-1.5 p-2 focus-within:ring-1 focus-within:ring-gray-100 rounded-[2.2rem] relative transition-all duration-300">
                         
                         <div class="relative flex items-center gap-1">
-                            <button id="mainAttachBtn" type="button" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-900 bg-white shadow-sm cursor-pointer transition-all active:scale-90" style="z-index: 1100;">
+                            <button id="mainAttachBtn" type="button" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-900 bg-white shadow-sm cursor-pointer transition-all active:scale-90 hover:shadow-md" style="z-index: 1100;">
                                 <i class="fa-solid fa-plus text-lg pointer-events-none"></i>
                             </button>
 
@@ -169,6 +177,10 @@
                                     <div id="optBrain" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between">
                                         <span class="text-xs font-bold text-gray-700">التفكير العميق</span>
                                         <div class="w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-lightbulb text-yellow-500 text-xs"></i></div>
+                                    </div>
+                                    <div id="optLinks" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between border-t border-white/20 mt-1 pt-2">
+                                        <span class="text-xs font-bold text-gray-700">الروابط</span>
+                                        <div class="w-8 h-8 bg-cyan-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-link text-cyan-500 text-xs"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -223,6 +235,24 @@
             <div class="flex gap-4">
                 <button id="confirmYes" class="flex-1 bg-black text-white py-3 rounded-2xl font-bold">نعم</button>
                 <button id="confirmNo" class="flex-1 bg-gray-100 text-gray-800 py-3 rounded-2xl font-bold">لا</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Links Bottom Sheet Modal -->
+    <div id="linksBottomSheet" class="fixed inset-0 hidden z-[3500]" onclick="if(event.target === this) window.closeLinksSheet()" style="background: rgba(0, 0, 0, 0.3);">
+        <div class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl max-h-[50vh] overflow-y-auto" style="animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">إدارة الروابط</h2>
+                <button onclick="window.closeLinksSheet()" class="text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-4 space-y-3">
+                <div id="linksGrid" class="grid grid-cols-2 gap-3">
+                    <!-- Links will be injected here -->
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-100 sticky bottom-0 bg-white">
+                <button onclick="window.openConnectionsPage()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-2xl font-bold hover:shadow-lg transition-all">إدارة الاتصالات</button>
             </div>
         </div>
     </div>

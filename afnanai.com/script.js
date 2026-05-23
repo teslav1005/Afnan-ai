@@ -483,3 +483,144 @@ window.closeImageViewer = () => {
     dom.imageViewer.classList.add('hidden');
     dom.viewerImg.src = '';
 };
+
+
+// Links Management
+const linksData = [
+    { name: 'Google Drive', icon: 'fa-google-drive', color: '#4285F4', url: '#' },
+    { name: 'Vercel', icon: 'fa-square-git', color: '#000000', url: '#' },
+    { name: 'Gethelp', icon: 'fa-headset', color: '#FF6B6B', url: '#' },
+    { name: 'Gemail', icon: 'fa-envelope', color: '#EA4335', url: '#' }
+];
+
+document.getElementById('optLinks').onclick = () => {
+    window.openLinksSheet();
+    dom.attachMenu.classList.add('hidden');
+};
+
+window.openLinksSheet = () => {
+    const sheet = document.getElementById('linksBottomSheet');
+    const grid = document.getElementById('linksGrid');
+    
+    grid.innerHTML = linksData.map(link => `
+        <div class="flex flex-col items-center gap-2 p-3 rounded-2xl hover:bg-gray-50 cursor-pointer transition-all" onclick="window.connectService('${link.name}')">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: ${link.color}20; color: ${link.color};">
+                <i class="fa-solid ${link.icon} text-lg"></i>
+            </div>
+            <span class="text-xs font-semibold text-gray-700 text-center">${link.name}</span>
+        </div>
+    `).join('');
+    
+    sheet.classList.remove('hidden');
+};
+
+window.closeLinksSheet = () => {
+    document.getElementById('linksBottomSheet').classList.add('hidden');
+};
+
+window.connectService = (serviceName) => {
+    window.openConnectionsPage(serviceName);
+};
+
+window.openConnectionsPage = (service = null) => {
+    const connectionsHTML = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الاتصالات - Afnan AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide { animation: slideUp 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button onclick="window.history.back()" class="p-2 hover:bg-gray-100 rounded-lg transition-all">
+                        <i class="fa-solid fa-arrow-right text-gray-600 text-lg"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800">إدارة الاتصالات</h1>
+                </div>
+                <button onclick="window.location.href='index.html'" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Services Grid -->
+        <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Google Drive -->
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center">
+                            <i class="fa-solid fa-google-drive text-4xl text-blue-500"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Google Drive</h3>
+                    <p class="text-sm text-gray-600 text-center mb-6">ربط حسابك على جوجل درايف لمشاركة الملفات</p>
+                    <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl font-bold hover:shadow-lg transition-all">
+                        <i class="fa-solid fa-link ml-2"></i>ربط الآن
+                    </button>
+                </div>
+
+                <!-- Vercel -->
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.1s;">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i class="fa-solid fa-square-git text-4xl text-gray-800"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Vercel</h3>
+                    <p class="text-sm text-gray-600 text-center mb-6">ربط مشاريعك على Vercel لنشر تطبيقاتك</p>
+                    <button class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-3 rounded-2xl font-bold hover:shadow-lg transition-all">
+                        <i class="fa-solid fa-link ml-2"></i>ربط الآن
+                    </button>
+                </div>
+
+                <!-- Gethelp -->
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.2s;">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+                            <i class="fa-solid fa-headset text-4xl text-red-500"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Gethelp</h3>
+                    <p class="text-sm text-gray-600 text-center mb-6">الحصول على الدعم الفني والمساعدة</p>
+                    <button class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-2xl font-bold hover:shadow-lg transition-all">
+                        <i class="fa-solid fa-link ml-2"></i>ربط الآن
+                    </button>
+                </div>
+
+                <!-- Gemail -->
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.3s;">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+                            <i class="fa-solid fa-envelope text-4xl text-red-500"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Gemail</h3>
+                    <p class="text-sm text-gray-600 text-center mb-6">ربط بريدك الإلكتروني للتواصل</p>
+                    <button class="w-full bg-gradient-to-r from-red-500 to-orange-600 text-white py-3 rounded-2xl font-bold hover:shadow-lg transition-all">
+                        <i class="fa-solid fa-link ml-2"></i>ربط الآن
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+    `;
+    
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(connectionsHTML);
+    newWindow.document.close();
+};
