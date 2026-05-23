@@ -484,7 +484,6 @@ window.closeImageViewer = () => {
     dom.viewerImg.src = '';
 };
 
-
 // Links Management
 const linksData = [
     { name: 'Google Drive', icon: 'fa-google-drive', color: '#4285F4', url: '#' },
@@ -502,12 +501,20 @@ window.openLinksSheet = () => {
     const sheet = document.getElementById('linksBottomSheet');
     const grid = document.getElementById('linksGrid');
     
-    grid.innerHTML = linksData.map(link => `
-        <div class="flex flex-col items-center gap-2 p-3 rounded-2xl hover:bg-gray-50 cursor-pointer transition-all" onclick="window.connectService('${link.name}')">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background: ${link.color}20; color: ${link.color};">
-                <i class="fa-solid ${link.icon} text-lg"></i>
-            </div>
-            <span class="text-xs font-semibold text-gray-700 text-center">${link.name}</span>
+    const servicesData = [
+        { name: 'Google Drive', img: 'https://i.postimg.cc/yDKc929g/Drive.png' },
+        { name: 'Gemail', img: 'https://i.postimg.cc/hXnTxNxx/Email.png' },
+        { name: 'Gethelp', img: 'https://i.postimg.cc/tsbWP8P7/Getep.png' },
+        { name: 'Vercel', img: 'https://i.postimg.cc/LJSLfGfZ/vercl.png' }
+    ];
+    
+    grid.innerHTML = servicesData.map(service => `
+        <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all border border-gray-100">
+            <img src="${service.img}" alt="${service.name}" class="w-12 h-12 object-contain">
+            <span class="text-sm font-semibold text-gray-800 flex-1">${service.name}</span>
+            <button onclick="window.connectService('${service.name}')" class="px-3 py-1.5 bg-cyan-500 text-white rounded-lg text-xs font-bold hover:bg-cyan-600 transition-all">
+                ربط
+            </button>
         </div>
     `).join('');
     
@@ -534,8 +541,6 @@ window.openConnectionsPage = (service = null) => {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide { animation: slideUp 0.3s ease-out; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100">
@@ -559,11 +564,9 @@ window.openConnectionsPage = (service = null) => {
         <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Google Drive -->
-                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide">
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6">
                     <div class="flex justify-center mb-6">
-                        <div class="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center">
-                            <i class="fa-solid fa-google-drive text-4xl text-blue-500"></i>
-                        </div>
+                        <img src="https://i.postimg.cc/yDKc929g/Drive.png" alt="Google Drive" class="w-20 h-20 object-contain">
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Google Drive</h3>
                     <p class="text-sm text-gray-600 text-center mb-6">ربط حسابك على جوجل درايف لمشاركة الملفات</p>
@@ -573,11 +576,9 @@ window.openConnectionsPage = (service = null) => {
                 </div>
 
                 <!-- Vercel -->
-                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.1s;">
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6">
                     <div class="flex justify-center mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
-                            <i class="fa-solid fa-square-git text-4xl text-gray-800"></i>
-                        </div>
+                        <img src="https://i.postimg.cc/LJSLfGfZ/vercl.png" alt="Vercel" class="w-20 h-20 object-contain">
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Vercel</h3>
                     <p class="text-sm text-gray-600 text-center mb-6">ربط مشاريعك على Vercel لنشر تطبيقاتك</p>
@@ -587,11 +588,9 @@ window.openConnectionsPage = (service = null) => {
                 </div>
 
                 <!-- Gethelp -->
-                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.2s;">
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6">
                     <div class="flex justify-center mb-6">
-                        <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
-                            <i class="fa-solid fa-headset text-4xl text-red-500"></i>
-                        </div>
+                        <img src="https://i.postimg.cc/tsbWP8P7/Getep.png" alt="Gethelp" class="w-20 h-20 object-contain">
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Gethelp</h3>
                     <p class="text-sm text-gray-600 text-center mb-6">الحصول على الدعم الفني والمساعدة</p>
@@ -601,11 +600,9 @@ window.openConnectionsPage = (service = null) => {
                 </div>
 
                 <!-- Gemail -->
-                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6 animate-slide" style="animation-delay: 0.3s;">
+                <div class="bg-white rounded-3xl shadow-sm hover:shadow-lg transition-all p-6">
                     <div class="flex justify-center mb-6">
-                        <div class="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
-                            <i class="fa-solid fa-envelope text-4xl text-red-500"></i>
-                        </div>
+                        <img src="https://i.postimg.cc/hXnTxNxx/Email.png" alt="Gemail" class="w-20 h-20 object-contain">
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 text-center mb-2">Gemail</h3>
                     <p class="text-sm text-gray-600 text-center mb-6">ربط بريدك الإلكتروني للتواصل</p>
