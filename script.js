@@ -509,12 +509,17 @@ window.openLinksSheet = () => {
     ];
     
     grid.innerHTML = servicesData.map(service => `
-        <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all border border-gray-100">
-            <img src="${service.img}" alt="${service.name}" class="w-12 h-12 object-contain">
-            <span class="text-sm font-semibold text-gray-800 flex-1">${service.name}</span>
-            <button onclick="window.connectService('${service.name}')" class="px-3 py-1.5 bg-cyan-500 text-white rounded-lg text-xs font-bold hover:bg-cyan-600 transition-all">
-                ربط
-            </button>
+        <div class="flex items-center justify-between p-4 bg-[#F5F6F8] rounded-2xl mb-2 transition-all hover:bg-[#EDEFF2]">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                    <img src="${service.img}" alt="${service.name}" class="w-7 h-7 object-contain">
+                </div>
+                <span class="text-base font-bold text-gray-800">${service.name}</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" onchange="window.connectService('${service.name}')">
+                <div class="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+            </label>
         </div>
     `).join('');
     
