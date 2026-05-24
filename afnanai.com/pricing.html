@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="خطط الاشتراك والأسعار في Afnan AI">
+    <title id="pageTitle">الأسعار - Afnan AI</title>
+    <link rel="icon" type="image/jpeg" href="/logo.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .pricing-card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+        .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .pricing-card.featured { border: 3px solid #667eea; transform: scale(1.05); }
+        .badge { position: absolute; top: -12px; left: 20px; background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.75rem; font-weight: bold; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <button onclick="window.location.href='index.html'" class="inline-flex items-center gap-2 text-white hover:text-gray-200 transition-all mb-6">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>العودة</span>
+            </button>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">خطط الاشتراك</h1>
+            <p class="text-xl text-gray-200">اختر الخطة المناسبة لاحتياجاتك</p>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- Free Plan -->
+            <div class="pricing-card relative p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Free</h3>
+                <p class="text-gray-600 text-sm mb-6">ابدأ مجاناً</p>
+                
+                <div class="mb-6">
+                    <span class="text-4xl font-bold text-gray-900">0</span>
+                    <span class="text-gray-600 mr-2">$</span>
+                    <span class="text-gray-500 text-sm">/يومي</span>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <p class="text-2xl font-bold text-blue-600">300</p>
+                    <p class="text-gray-600 text-sm">كريدت يومي</p>
+                </div>
+
+                <button onclick="window.selectPlan('free')" class="w-full bg-gray-200 text-gray-900 py-3 rounded-lg font-bold hover:bg-gray-300 transition-all mb-6">
+                    الخطة الحالية
+                </button>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">300 كريدت يومي</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">الموصلات الأساسية</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">دعم المجتمع</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pro Plan (Featured) -->
+            <div class="pricing-card featured relative p-8">
+                <div class="badge">الأكثر شعبية</div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
+                <p class="text-gray-600 text-sm mb-6">للمحترفين</p>
+                
+                <div class="mb-6">
+                    <span class="text-4xl font-bold text-gray-900">5</span>
+                    <span class="text-gray-600 mr-2">$</span>
+                    <span class="text-gray-500 text-sm">/شهري</span>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <p class="text-2xl font-bold text-blue-600">5000</p>
+                    <p class="text-gray-600 text-sm">كريدت شهري</p>
+                </div>
+
+                <button onclick="window.selectPlan('pro')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-all mb-6">
+                    الترقية الآن
+                </button>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">5000 كريدت شهري</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">جميع الموصلات</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">دعم الأولوية</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">ميزات متقدمة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ultra Plan -->
+            <div class="pricing-card relative p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Ultra</h3>
+                <p class="text-gray-600 text-sm mb-6">للشركات</p>
+                
+                <div class="mb-6">
+                    <span class="text-4xl font-bold text-gray-900">20</span>
+                    <span class="text-gray-600 mr-2">$</span>
+                    <span class="text-gray-500 text-sm">/شهري</span>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <p class="text-2xl font-bold text-blue-600">30000</p>
+                    <p class="text-gray-600 text-sm">كريدت شهري</p>
+                </div>
+
+                <button onclick="window.selectPlan('ultra')" class="w-full bg-gray-900 text-white py-3 rounded-lg font-bold hover:bg-black transition-all mb-6">
+                    الترقية الآن
+                </button>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">30000 كريدت شهري</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">جميع الموصلات</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">دعم 24/7</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">ميزات حصرية</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-green-500"></i>
+                        <span class="text-gray-700">مدير حساب مخصص</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="bg-white rounded-2xl p-8 shadow-xl">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">الأسئلة الشائعة</h2>
+            <div class="space-y-4">
+                <div class="border-b border-gray-200 pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2">هل يمكنني تغيير الخطة لاحقاً؟</h3>
+                    <p class="text-gray-600">نعم، يمكنك تغيير خطتك في أي وقت من إعدادات حسابك.</p>
+                </div>
+                <div class="border-b border-gray-200 pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2">هل هناك فترة تجريبية مجانية؟</h3>
+                    <p class="text-gray-600">نعم، خطة Free توفر 300 كريدت يومي للبدء.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2">ماذا يحدث عند انتهاء الكريدت؟</h3>
+                    <p class="text-gray-600">ستتمكن من الاستمرار في استخدام الخدمة حتى تنتهي الفترة الزمنية، ثم سيتم تجديد الكريدت.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        window.selectPlan = (planName) => {
+            const currentUser = AccountSystem.getCurrentUser();
+            if (currentUser.plan === planName) {
+                alert('أنت بالفعل مشترك في هذه الخطة');
+                return;
+            }
+
+            if (planName !== 'free') {
+                // في التطبيق الحقيقي، ستحتاج إلى معالجة الدفع هنا
+                alert('سيتم توجيهك إلى صفحة الدفع قريباً');
+            }
+
+            AccountSystem.updatePlan(planName);
+            AccountSystem.addNotification(
+                'تم تحديث الخطة',
+                `تم ترقيتك إلى خطة ${AccountSystem.plans[planName].name}`,
+                'success'
+            );
+            
+            // تحديث الواجهة
+            location.reload();
+        };
+    </script>
+</body>
+</html>

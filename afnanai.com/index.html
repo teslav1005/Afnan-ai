@@ -95,6 +95,22 @@
                 </button>
             </div>
 
+            <!-- Credits and Notifications (Right Side) -->
+            <div class="flex items-center gap-3">
+                <!-- Credits Widget -->
+                <div class="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full px-4 py-2 border border-blue-200">
+                    <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
+                    <span id="creditsDisplay" class="text-sm font-bold text-blue-900">300</span>
+                    <span class="text-xs text-blue-700">كريدت</span>
+                </div>
+
+                <!-- Notifications Bell -->
+                <button onclick="window.location.href='notifications.html'" class="p-2 hover:bg-gray-100 rounded-full transition-all relative">
+                    <i class="fa-solid fa-bell text-xl text-gray-600"></i>
+                    <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden font-bold">0</span>
+                </button>
+            </div>
+
             <!-- Model Selector (Top Left - Replaces Login Btn) -->
             <div id="modelSelectorTop" class="hidden">
                 <button id="currentModelBtn" class="glass px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white/90 transition-all">
@@ -180,9 +196,13 @@
                                         <span class="text-xs font-bold text-gray-700">التفكير العميق</span>
                                         <div class="w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-lightbulb text-yellow-500 text-xs"></i></div>
                                     </div>
-                                    <div id="optLinks" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between border-t border-white/20 mt-1 pt-2">
+                                    <div id="optLinks" class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between border-t border-white/20 mt-1 pt-2" onclick="window.location.href='connectors.html'">
                                         <span class="text-xs font-bold text-gray-700">الروابط</span>
                                         <div class="w-8 h-8 bg-cyan-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-link text-cyan-500 text-xs"></i></div>
+                                    </div>
+                                    <div class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between" onclick="window.location.href='admin.html'">
+                                        <span class="text-xs font-bold text-gray-700">لوحة التحكم</span>
+                                        <div class="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-sliders text-purple-500 text-xs"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -257,6 +277,33 @@
         </div>
     </div>
 
+    <script src="app.js"></script>
     <script type="module" src="script.js"></script>
+    <script>
+        // تحديث عرض الكريدت والإشعارات
+        function updateUIData() {
+            const user = AccountSystem.getCurrentUser();
+            if (user) {
+                document.getElementById('creditsDisplay').textContent = user.credits;
+                
+                // تحديث شارة الإشعارات
+                const notifications = AccountSystem.getNotifications();
+                const unreadCount = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationBadge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+        
+        // تحديث العرض عند تحميل الصفحة
+        window.addEventListener('load', updateUIData);
+        
+        // تحديث العرض كل 5 ثوان
+        setInterval(updateUIData, 5000);
+    </script>
 </body>
 </html>
