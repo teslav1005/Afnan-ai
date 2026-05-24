@@ -535,5 +535,6 @@ window.connectService = (serviceName) => {
 };
 
 window.openConnectionsPage = (service = null) => {
-    window.location.href = 'connectors.html';
+    // Force opening in same tab for better mobile experience
+    window.location.assign('connectors.html');
 };
