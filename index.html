@@ -95,8 +95,8 @@
                 </button>
             </div>
 
-            <!-- Credits and Notifications (Right Side) -->
-            <div class="flex items-center gap-3">
+            <!-- Credits and Notifications (Right Side) - Only for Logged In Users -->
+            <div id="creditsNotificationsContainer" class="flex items-center gap-3 hidden">
                 <!-- Credits Widget -->
                 <div class="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full px-4 py-2 border border-blue-200">
                     <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
@@ -200,10 +200,7 @@
                                         <span class="text-xs font-bold text-gray-700">الروابط</span>
                                         <div class="w-8 h-8 bg-cyan-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-link text-cyan-500 text-xs"></i></div>
                                     </div>
-                                    <div class="attach-item p-2.5 hover:bg-white/50 rounded-2xl cursor-pointer flex items-center justify-between" onclick="window.location.href='admin.html'">
-                                        <span class="text-xs font-bold text-gray-700">لوحة التحكم</span>
-                                        <div class="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-sliders text-purple-500 text-xs"></i></div>
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

@@ -51,11 +51,13 @@ const dom = {
 onAuthStateChanged(auth, async (user) => {
     const loginBtnHeader = document.getElementById('loginBtnHeader');
     const profileSection = document.getElementById('profileSection');
+    const creditsNotificationsContainer = document.getElementById('creditsNotificationsContainer');
 
     if (!user) {
         currentUser = null;
         if (loginBtnHeader) loginBtnHeader.style.display = 'block';
         dom.modelSelectorTop.classList.add('hidden');
+        if (creditsNotificationsContainer) creditsNotificationsContainer.classList.add('hidden');
         profileSection.innerHTML = '';
         dom.historyList.innerHTML = '';
         if (unsubscribeHistory) unsubscribeHistory();
@@ -63,6 +65,7 @@ onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         if (loginBtnHeader) loginBtnHeader.style.display = 'none';
         dom.modelSelectorTop.classList.remove('hidden');
+        if (creditsNotificationsContainer) creditsNotificationsContainer.classList.remove('hidden');
         profileSection.innerHTML = `
             <div id="profileTrigger" class="flex items-center gap-3 p-2.5 rounded-2xl cursor-pointer hover:bg-gray-200/50 transition-all">
                 <img id="profileImg" src="${user.photoURL || 'https://via.placeholder.com/40'}" alt="Profile" class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm object-cover">
