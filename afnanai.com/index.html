@@ -82,6 +82,31 @@
             </div>
         </div>
 
+        <!-- Credits and System Section -->
+        <div class="p-4 border-t border-gray-100 space-y-2 relative" id="creditsSystemSection">
+            <!-- Credits Widget -->
+            <div id="creditsWidget" class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl px-4 py-3 border border-blue-200 hidden">
+                <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
+                <div class="flex flex-col flex-1">
+                    <span id="creditsDisplay" class="text-sm font-bold text-blue-900">300</span>
+                    <span class="text-[10px] text-blue-700">كريدت</span>
+                </div>
+            </div>
+
+            <!-- System/Notifications Button -->
+            <button id="systemNotificationBtn" onclick="window.location.href='notifications.html'" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-100 transition-all relative hidden">
+                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-bell text-gray-600 text-sm"></i>
+                </div>
+                <div class="flex-1 text-right">
+                    <p class="text-xs font-bold text-gray-700">النظام</p>
+                    <p id="systemNotificationCount" class="text-[10px] text-gray-500">لا توجد إشعارات</p>
+                </div>
+                <span id="notificationBadge" class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden font-bold">0</span>
+            </button>
+        </div>
+
+        <!-- Profile Section -->
         <div class="p-4 border-t border-gray-100 space-y-1 relative" id="profileSection"></div>
     </aside>
 
@@ -95,21 +120,7 @@
                 </button>
             </div>
 
-            <!-- Credits and Notifications (Right Side) - Only for Logged In Users -->
-            <div id="creditsNotificationsContainer" class="flex items-center gap-3 hidden">
-                <!-- Credits Widget -->
-                <div class="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full px-4 py-2 border border-blue-200">
-                    <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
-                    <span id="creditsDisplay" class="text-sm font-bold text-blue-900">300</span>
-                    <span class="text-xs text-blue-700">كريدت</span>
-                </div>
-
-                <!-- Notifications Bell -->
-                <button onclick="window.location.href='notifications.html'" class="p-2 hover:bg-gray-100 rounded-full transition-all relative">
-                    <i class="fa-solid fa-bell text-xl text-gray-600"></i>
-                    <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden font-bold">0</span>
-                </button>
-            </div>
+            <!-- Credits and Notifications (Right Side) - REMOVED - Now in Sidebar -->
 
             <!-- Model Selector (Top Left - Replaces Login Btn) -->
             <div id="modelSelectorTop" class="hidden">
@@ -277,22 +288,39 @@
     <script src="app.js"></script>
     <script type="module" src="script.js"></script>
     <script>
-        // تحديث عرض الكريدت والإشعارات
+        // تحديث عرض الكريدت والإشعارات في الشريط الجانبي
         function updateUIData() {
             const user = AccountSystem.getCurrentUser();
+            const creditsWidget = document.getElementById('creditsWidget');
+            const systemBtn = document.getElementById('systemNotificationBtn');
+            const creditsDisplay = document.getElementById('creditsDisplay');
+            const badge = document.getElementById('notificationBadge');
+            const systemNotificationCount = document.getElementById('systemNotificationCount');
+            
             if (user) {
-                document.getElementById('creditsDisplay').textContent = user.credits;
+                // إظهار عناصر الكريدت والنظام
+                creditsWidget.classList.remove('hidden');
+                systemBtn.classList.remove('hidden');
+                
+                // تحديث عرض الكريدت
+                creditsDisplay.textContent = user.credits;
                 
                 // تحديث شارة الإشعارات
                 const notifications = AccountSystem.getNotifications();
                 const unreadCount = notifications.filter(n => !n.read).length;
-                const badge = document.getElementById('notificationBadge');
+                
                 if (unreadCount > 0) {
                     badge.textContent = unreadCount;
                     badge.classList.remove('hidden');
+                    systemNotificationCount.textContent = unreadCount + ' إشعار جديد';
                 } else {
                     badge.classList.add('hidden');
+                    systemNotificationCount.textContent = 'لا توجد إشعارات';
                 }
+            } else {
+                // إخفاء عناصر الكريدت والنظام
+                creditsWidget.classList.add('hidden');
+                systemBtn.classList.add('hidden');
             }
         }
         
