@@ -92,14 +92,14 @@
 
         <!-- Credits and System Section -->
         <div class="p-4 border-t border-gray-100 space-y-2 relative" id="creditsSystemSection">
-            <!-- Credits Widget (Clickable) -->
-            <div id="creditsWidget" onclick="window.location.href='pricing.html'" class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl px-4 py-3 border border-blue-200 hidden cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
-                <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
+            <!-- Credits Widget (Clickable) - Black & White Style -->
+            <div id="creditsWidget" onclick="window.location.href='pricing.html'" class="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 border-2 border-black hidden cursor-pointer hover:bg-black hover:text-white group transition-all duration-300">
+                <i class="fa-solid fa-bolt text-black text-sm group-hover:text-white"></i>
                 <div class="flex flex-col flex-1">
-                    <span id="creditsDisplay" class="text-sm font-bold text-blue-900">300</span>
-                    <span class="text-[10px] text-blue-700">كريدت</span>
+                    <span id="creditsDisplay" class="text-sm font-black">300</span>
+                    <span class="text-[9px] font-bold opacity-60">كريدت شهري</span>
                 </div>
-                <i class="fa-solid fa-chevron-left text-[10px] text-blue-400"></i>
+                <i class="fa-solid fa-chevron-left text-[10px] opacity-40 group-hover:opacity-100"></i>
             </div>
 
             <!-- System/Notifications Button -->
@@ -303,18 +303,23 @@
             const creditsWidget = document.getElementById('creditsWidget');
             const systemBtn = document.getElementById('systemNotificationBtn');
             const creditsDisplay = document.getElementById('creditsDisplay');
+            const creditsLabel = creditsDisplay.nextElementSibling;
             const badge = document.getElementById('notificationBadge');
             const systemNotificationCount = document.getElementById('systemNotificationCount');
             
             if (user) {
-                // إظهار عناصر الكريدت والنظام
                 creditsWidget.classList.remove('hidden');
                 systemBtn.classList.remove('hidden');
                 
-                // تحديث عرض الكريدت
-                creditsDisplay.textContent = user.credits;
+                // تحديث عرض الكريدت أو الاستخدام المفتوح
+                if (user.plan === 'pro' || user.plan === 'ultra') {
+                    creditsDisplay.textContent = 'مفتوح';
+                    creditsLabel.textContent = user.plan === 'pro' ? 'استخدام محدود' : 'أعلى سقف';
+                } else {
+                    creditsDisplay.textContent = user.credits;
+                    creditsLabel.textContent = 'كريدت شهري';
+                }
                 
-                // تحديث شارة الإشعارات
                 const notifications = AccountSystem.getNotifications();
                 const unreadCount = notifications.filter(n => !n.read).length;
                 
@@ -327,7 +332,6 @@
                     systemNotificationCount.textContent = 'لا توجد إشعارات';
                 }
             } else {
-                // إخفاء عناصر الكريدت والنظام
                 creditsWidget.classList.add('hidden');
                 systemBtn.classList.add('hidden');
             }

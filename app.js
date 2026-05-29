@@ -23,9 +23,9 @@ if (window.visualViewport) {
 const AccountSystem = {
     // خطط الاشتراك
     plans: {
-        free: { name: 'Free', credits: 300, price: 0, period: 'يومي' },
-        pro: { name: 'Pro', credits: 900, price: 10, period: 'شهري' },
-        ultra: { name: 'Ultra', credits: 6300, price: 20, period: 'شهري' }
+        free: { name: 'Free', credits: 300, price: 0, period: 'شهري' },
+        pro: { name: 'Pro', credits: 'Infinity', price: 10, period: 'شهري', description: 'استخدام مفتوح بحدود' },
+        ultra: { name: 'Ultra', credits: 'Infinity', price: 20, period: 'شهري', description: 'استخدام مفتوح بأعلى سقف' }
     },
 
     // الموصلات المتاحة
