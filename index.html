@@ -32,6 +32,14 @@
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
+        /* Smooth Page Transitions */
+        .page-transition { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hover Effects */
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); }
+        
         /* Message Layout */
         .msg-user { align-self: flex-end; margin-left: 20%; }
         .msg-bot { align-self: flex-start; margin-right: 20%; }
@@ -47,7 +55,7 @@
         #modelSelectorTop { position: absolute; top: 12px; left: 24px; z-index: 1000; }
     </style>
 </head>
-<body class="antialiased text-gray-900 bg-white">
+<body class="antialiased text-gray-900 bg-white page-transition">
 
     <div id="overlay" class="fixed inset-0 bg-black/10 backdrop-blur-[2px] hidden transition-opacity duration-300 opacity-0" style="z-index: 100;"></div>
 
@@ -84,13 +92,14 @@
 
         <!-- Credits and System Section -->
         <div class="p-4 border-t border-gray-100 space-y-2 relative" id="creditsSystemSection">
-            <!-- Credits Widget -->
-            <div id="creditsWidget" class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl px-4 py-3 border border-blue-200 hidden">
+            <!-- Credits Widget (Clickable) -->
+            <div id="creditsWidget" onclick="window.location.href='pricing.html'" class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl px-4 py-3 border border-blue-200 hidden cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
                 <i class="fa-solid fa-coins text-blue-600 text-sm"></i>
                 <div class="flex flex-col flex-1">
                     <span id="creditsDisplay" class="text-sm font-bold text-blue-900">300</span>
                     <span class="text-[10px] text-blue-700">كريدت</span>
                 </div>
+                <i class="fa-solid fa-chevron-left text-[10px] text-blue-400"></i>
             </div>
 
             <!-- System/Notifications Button -->

@@ -24,8 +24,8 @@ const AccountSystem = {
     // خطط الاشتراك
     plans: {
         free: { name: 'Free', credits: 300, price: 0, period: 'يومي' },
-        pro: { name: 'Pro', credits: 5000, price: 5, period: 'شهري' },
-        ultra: { name: 'Ultra', credits: 30000, price: 20, period: 'شهري' }
+        pro: { name: 'Pro', credits: 900, price: 10, period: 'شهري' },
+        ultra: { name: 'Ultra', credits: 6300, price: 20, period: 'شهري' }
     },
 
     // الموصلات المتاحة

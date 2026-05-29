@@ -9,164 +9,495 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .pricing-card { background: white; border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: all 0.3s ease; }
-        .pricing-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .pricing-card.featured { border: 3px solid #667eea; transform: scale(1.05); }
-        .badge { position: absolute; top: -12px; left: 20px; background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.75rem; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body { height: 100%; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            animation: gradientShift 15s ease infinite;
+            background-size: 400% 400%;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pricing-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .pricing-card.featured {
+            border: 2px solid #667eea;
+            transform: scale(1.08);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: scale(1.08) translateY(-12px);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .price-tag {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .price-tag .amount {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .price-tag .currency {
+            font-size: 1.5rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .price-tag .period {
+            font-size: 0.875rem;
+            color: #999;
+        }
+        
+        .credits-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card:hover .credits-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+        
+        .credits-box .amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .credits-box .label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 1.2rem;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-primary:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-free {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-free:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-pro {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-pro:hover {
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+            transform: translateY(-3px);
+        }
+        
+        .btn-ultra {
+            background: linear-gradient(135deg, #764ba2, #f093fb);
+            color: white;
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.4);
+        }
+        
+        .btn-ultra:hover {
+            box-shadow: 0 12px 30px rgba(240, 147, 251, 0.6);
+            transform: translateY(-3px);
+        }
+        
+        .features-list {
+            space-y: 1rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            animation: slideInLeft 0.6s ease-out backwards;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .feature-item:nth-child(1) { animation-delay: 0.1s; }
+        .feature-item:nth-child(2) { animation-delay: 0.2s; }
+        .feature-item:nth-child(3) { animation-delay: 0.3s; }
+        .feature-item:nth-child(4) { animation-delay: 0.4s; }
+        .feature-item:nth-child(5) { animation-delay: 0.5s; }
+        
+        .feature-item i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+        
+        .feature-item span {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(5px);
+        }
+        
+        .header-text {
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header-text h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-text p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+        }
+        
+        .faq-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+        
+        .faq-item {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        
+        .faq-item h3 {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .faq-item p {
+            color: #666;
+            line-height: 1.6;
+        }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
-    <div class="max-w-6xl mx-auto">
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-12">
-            <button onclick="window.location.href='index.html'" class="inline-flex items-center gap-2 text-white hover:text-gray-200 transition-all mb-6">
+        <div class="header-text fade-in">
+            <button onclick="window.location.href='index.html'" class="back-btn">
                 <i class="fa-solid fa-arrow-right"></i>
                 <span>العودة</span>
             </button>
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">خطط الاشتراك</h1>
-            <p class="text-xl text-gray-200">اختر الخطة المناسبة لاحتياجاتك</p>
+            <h1>خطط الاشتراك</h1>
+            <p>اختر الخطة المناسبة لاحتياجاتك واستمتع بمميزات لا محدودة</p>
         </div>
 
         <!-- Pricing Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <!-- Free Plan -->
-            <div class="pricing-card relative p-8">
+            <div class="pricing-card fade-in p-8" style="animation-delay: 0.1s;">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Free</h3>
                 <p class="text-gray-600 text-sm mb-6">ابدأ مجاناً</p>
                 
-                <div class="mb-6">
-                    <span class="text-4xl font-bold text-gray-900">0</span>
-                    <span class="text-gray-600 mr-2">$</span>
-                    <span class="text-gray-500 text-sm">/يومي</span>
+                <div class="price-tag">
+                    <span class="amount">0</span>
+                    <span class="currency">$</span>
+                    <span class="period">/يومي</span>
                 </div>
 
-                <div class="bg-blue-50 rounded-lg p-4 mb-6">
-                    <p class="text-2xl font-bold text-blue-600">300</p>
-                    <p class="text-gray-600 text-sm">كريدت يومي</p>
+                <div class="credits-box">
+                    <div class="amount">300</div>
+                    <div class="label">كريدت يومي</div>
                 </div>
 
-                <button onclick="window.selectPlan('free')" class="w-full bg-gray-200 text-gray-900 py-3 rounded-lg font-bold hover:bg-gray-300 transition-all mb-6">
+                <button onclick="window.selectPlan('free')" class="btn-primary btn-free">
                     الخطة الحالية
                 </button>
 
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">300 كريدت يومي</span>
+                <div class="features-list space-y-3">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>300 كريدت يومي</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">الموصلات الأساسية</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>الموصلات الأساسية</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">دعم المجتمع</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>دعم المجتمع</span>
                     </div>
                 </div>
             </div>
 
             <!-- Pro Plan (Featured) -->
-            <div class="pricing-card featured relative p-8">
+            <div class="pricing-card featured fade-in p-8" style="animation-delay: 0.2s;">
                 <div class="badge">الأكثر شعبية</div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
                 <p class="text-gray-600 text-sm mb-6">للمحترفين</p>
                 
-                <div class="mb-6">
-                    <span class="text-4xl font-bold text-gray-900">5</span>
-                    <span class="text-gray-600 mr-2">$</span>
-                    <span class="text-gray-500 text-sm">/شهري</span>
+                <div class="price-tag">
+                    <span class="amount">10</span>
+                    <span class="currency">$</span>
+                    <span class="period">/شهري</span>
                 </div>
 
-                <div class="bg-blue-50 rounded-lg p-4 mb-6">
-                    <p class="text-2xl font-bold text-blue-600">5000</p>
-                    <p class="text-gray-600 text-sm">كريدت شهري</p>
+                <div class="credits-box">
+                    <div class="amount">900</div>
+                    <div class="label">كريدت شهري (3x Free)</div>
                 </div>
 
-                <button onclick="window.selectPlan('pro')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-all mb-6">
+                <button onclick="window.selectPlan('pro')" class="btn-primary btn-pro">
                     الترقية الآن
                 </button>
 
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">5000 كريدت شهري</span>
+                <div class="features-list space-y-3">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>900 كريدت شهري</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">جميع الموصلات</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>جميع الموصلات</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">دعم الأولوية</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>دعم الأولوية</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">ميزات متقدمة</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>ميزات متقدمة</span>
                     </div>
                 </div>
             </div>
 
             <!-- Ultra Plan -->
-            <div class="pricing-card relative p-8">
+            <div class="pricing-card fade-in p-8" style="animation-delay: 0.3s;">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Ultra</h3>
                 <p class="text-gray-600 text-sm mb-6">للشركات</p>
                 
-                <div class="mb-6">
-                    <span class="text-4xl font-bold text-gray-900">20</span>
-                    <span class="text-gray-600 mr-2">$</span>
-                    <span class="text-gray-500 text-sm">/شهري</span>
+                <div class="price-tag">
+                    <span class="amount">20</span>
+                    <span class="currency">$</span>
+                    <span class="period">/شهري</span>
                 </div>
 
-                <div class="bg-blue-50 rounded-lg p-4 mb-6">
-                    <p class="text-2xl font-bold text-blue-600">30000</p>
-                    <p class="text-gray-600 text-sm">كريدت شهري</p>
+                <div class="credits-box">
+                    <div class="amount">6300</div>
+                    <div class="label">كريدت شهري (7x Pro)</div>
                 </div>
 
-                <button onclick="window.selectPlan('ultra')" class="w-full bg-gray-900 text-white py-3 rounded-lg font-bold hover:bg-black transition-all mb-6">
+                <button onclick="window.selectPlan('ultra')" class="btn-primary btn-ultra">
                     الترقية الآن
                 </button>
 
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">30000 كريدت شهري</span>
+                <div class="features-list space-y-3">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>6300 كريدت شهري</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">جميع الموصلات</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>جميع الموصلات</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">دعم 24/7</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>دعم 24/7</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">ميزات حصرية</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>ميزات حصرية</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-check text-green-500"></i>
-                        <span class="text-gray-700">مدير حساب مخصص</span>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-check"></i>
+                        <span>مدير حساب مخصص</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- FAQ Section -->
-        <div class="bg-white rounded-2xl p-8 shadow-xl">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">الأسئلة الشائعة</h2>
+        <div class="faq-section">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">الأسئلة الشائعة</h2>
             <div class="space-y-4">
-                <div class="border-b border-gray-200 pb-4">
-                    <h3 class="font-bold text-gray-900 mb-2">هل يمكنني تغيير الخطة لاحقاً؟</h3>
-                    <p class="text-gray-600">نعم، يمكنك تغيير خطتك في أي وقت من إعدادات حسابك.</p>
+                <div class="faq-item">
+                    <h3>هل يمكنني تغيير الخطة لاحقاً؟</h3>
+                    <p>نعم، يمكنك تغيير خطتك في أي وقت من إعدادات حسابك. التغيير سيسري المفعول فوراً.</p>
                 </div>
-                <div class="border-b border-gray-200 pb-4">
-                    <h3 class="font-bold text-gray-900 mb-2">هل هناك فترة تجريبية مجانية؟</h3>
-                    <p class="text-gray-600">نعم، خطة Free توفر 300 كريدت يومي للبدء.</p>
+                <div class="faq-item">
+                    <h3>هل هناك فترة تجريبية مجانية؟</h3>
+                    <p>نعم، خطة Free توفر 300 كريدت يومي للبدء مجاناً بدون الحاجة لبطاقة ائتمان.</p>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-900 mb-2">ماذا يحدث عند انتهاء الكريدت؟</h3>
-                    <p class="text-gray-600">ستتمكن من الاستمرار في استخدام الخدمة حتى تنتهي الفترة الزمنية، ثم سيتم تجديد الكريدت.</p>
+                <div class="faq-item">
+                    <h3>ماذا يحدث عند انتهاء الكريدت؟</h3>
+                    <p>يمكنك الاستمرار في استخدام الخدمة حتى تنتهي الفترة الزمنية، وسيتم تجديد الكريدت تلقائياً في بداية الفترة التالية.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>هل يوجد عقد طويل الأجل؟</h3>
+                    <p>لا، جميع خطط الاشتراك شهرية وبدون التزام طويل الأجل. يمكنك الإلغاء في أي وقت.</p>
                 </div>
             </div>
         </div>
@@ -193,8 +524,10 @@
                 'success'
             );
             
-            // تحديث الواجهة
-            location.reload();
+            // تحديث الواجهة مع تأخير صغير للسماح برؤية التأثير
+            setTimeout(() => {
+                location.reload();
+            }, 500);
         };
     </script>
 </body>
