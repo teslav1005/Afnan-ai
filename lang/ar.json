@@ -1,0 +1,44 @@
+{
+  "common": {
+    "new_chat": "محادثة جديدة",
+    "search_placeholder": "بحث في المحادثات...",
+    "pinned": "المثبتة",
+    "favorites": "المفضلة",
+    "recent": "الأخيرة",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "delete_account": "حذف الحساب",
+    "privacy_policy": "سياسة الخصوصية",
+    "terms_of_service": "اتفاقية المستخدم",
+    "confirm_logout": "هل أنت متأكد من تسجيل الخروج؟",
+    "yes": "نعم",
+    "no": "لا",
+    "image_gen": "توليد الصور",
+    "video_gen": "توليد الفيديو",
+    "toast_model_selected": "تم اختيار نموذج {{name}}",
+    "toast_new_chat": "بدء محادثة جديدة",
+    "toast_copied": "تم نسخ النص"
+  },
+  "chat": {
+    "input_placeholder": "اسأل Afnan ai...",
+    "empty_title": "Afnan ai",
+    "typing": "جاري الكتابة...",
+    "experimental_response": "هذا رد تجريبي من نموذج {{model}}.",
+    "pin_chat": "تثبيت المحادثة",
+    "fav_chat": "إضافة للمفضلة",
+    "del_chat": "حذف المحادثة",
+    "confirm_del": "حذف المحادثة؟"
+  },
+  "generator": {
+    "title_image": "توليد الصور",
+    "title_video": "توليد الفيديو",
+    "prompt_placeholder": "اكتب وصفاً هنا...",
+    "attached_images": "الصور المرفقة",
+    "model_label": "نموذج التوليد",
+    "size_label": "الحجم",
+    "duration_label": "مدة التوليد",
+    "count_label": "عدد الصور المولدة",
+    "hide_settings": "إخفاء الإعدادات",
+    "seconds": "s"
+  }
+}

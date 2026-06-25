@@ -1,0 +1,44 @@
+{
+  "common": {
+    "new_chat": "New Chat",
+    "search_placeholder": "Search conversations...",
+    "pinned": "Pinned",
+    "favorites": "Favorites",
+    "recent": "Recent",
+    "login": "Login",
+    "logout": "Logout",
+    "delete_account": "Delete Account",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "confirm_logout": "Are you sure you want to logout?",
+    "yes": "Yes",
+    "no": "No",
+    "image_gen": "Image Gen",
+    "video_gen": "Video Gen",
+    "toast_model_selected": "Model {{name}} selected",
+    "toast_new_chat": "Starting new chat",
+    "toast_copied": "Text copied"
+  },
+  "chat": {
+    "input_placeholder": "Ask Afnan ai...",
+    "empty_title": "Afnan ai",
+    "typing": "Typing...",
+    "experimental_response": "This is an experimental response from model {{model}}.",
+    "pin_chat": "Pin Chat",
+    "fav_chat": "Add to Favorites",
+    "del_chat": "Delete Chat",
+    "confirm_del": "Delete Chat?"
+  },
+  "generator": {
+    "title_image": "Image Generation",
+    "title_video": "Video Generation",
+    "prompt_placeholder": "Write a description here...",
+    "attached_images": "Attached Images",
+    "model_label": "Generation Model",
+    "size_label": "Size",
+    "duration_label": "Generation Duration",
+    "count_label": "Number of Generated Images",
+    "hide_settings": "Hide Settings",
+    "seconds": "s"
+  }
+}

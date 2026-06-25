@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Afnan AI - منصة ذكية للدردشة والتواصل مع نماذج AI متقدمة.">
+    <meta name="author" content="Afnan AI">
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/jpeg" href="/logo.jpg">
+    <title>Afnan AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="app.css">
+    <!-- i18next Library -->
+    <script src="https://unpkg.com/i18next@23.2.3/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-http-backend@2.2.1/i18nextHttpBackend.min.js"></script>
+    <script src="https://unpkg.com/i18next-browser-languagedetector@7.1.0/i18nextBrowserLanguageDetector.min.js"></script>
+    
+    <script src="security.js"></script>
+    <script src="app.js" defer></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+        .glass { backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: var(--glass-bg); border: 1px solid var(--glass-border); }
+        .sidebar-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .generator-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 4000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .generator-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 2.5rem 2.5rem 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .option-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        .option-btn.active {
+            background: black;
+            color: white;
+            border-color: black;
+        }
+        
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Language Toggle Button */
+        #langToggle {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #f3f4f6;
+            transition: all 0.2s;
+        }
+        #langToggle:hover { background: #e5e7eb; }
+    </style>
+</head>
+<body class="antialiased text-gray-900 bg-white">
+
+    <div id="overlay" class="fixed inset-0 bg-black/10 backdrop-blur-[2px] hidden transition-opacity duration-300 opacity-0" style="z-index: 100;"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-[#fcfcfc] border-r border-gray-100 flex flex-col transform -translate-x-full md:translate-x-0 sidebar-transition h-full shadow-sm md:shadow-none">
+        <div class="p-4 flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <button id="langToggle" onclick="window.toggleLanguage()">EN</button>
+                <img src="logo.jpg" alt="Logo" class="w-8 h-8 rounded-full">
+            </div>
+
+            <button id="newChatBtn" class="flex items-center gap-3 w-full bg-white border border-gray-100 p-3.5 rounded-2xl hover:bg-gray-50 transition-all shadow-sm active:scale-95">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span data-i18n="common.new_chat" class="font-bold text-gray-700 text-sm">محادثة جديدة</span>
+            </button>
+            
+            <div class="flex gap-2">
+                <button onclick="window.openGenerator('image')" class="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-100 p-3 rounded-xl hover:bg-gray-50 transition-all shadow-sm text-xs font-bold">
+                    <i class="fa-solid fa-image text-blue-500"></i>
+                    <span data-i18n="common.image_gen">توليد الصور</span>
+                </button>
+                <button onclick="window.openGenerator('video')" class="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-100 p-3 rounded-xl hover:bg-gray-50 transition-all shadow-sm text-xs font-bold">
+                    <i class="fa-solid fa-video text-purple-500"></i>
+                    <span data-i18n="common.video_gen">توليد الفيديو</span>
+                </button>
+            </div>
+
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="historySearch" data-i18n="[placeholder]common.search_placeholder" placeholder="بحث في المحادثات..." class="w-full bg-gray-100 border-none rounded-xl py-2 pr-9 pl-3 text-xs focus:ring-1 focus:ring-gray-200">
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto px-4 space-y-4 hide-scrollbar" id="historyList">
+            <div id="pinnedSection" class="space-y-1 hidden">
+                <p data-i18n="common.pinned" class="text-[10px] font-bold text-gray-400 px-2 mb-2">المثبتة</p>
+                <div id="pinnedList" class="space-y-1"></div>
+            </div>
+            <div id="favoritesSection" class="space-y-1 hidden">
+                <p data-i18n="common.favorites" class="text-[10px] font-bold text-gray-400 px-2 mb-2">المفضلة</p>
+                <div id="favoritesList" class="space-y-1"></div>
+            </div>
+            <div id="recentSection" class="space-y-1">
+                <p data-i18n="common.recent" class="text-[10px] font-bold text-gray-400 px-2 mb-2">الأخيرة</p>
+                <div id="recentList" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-100 space-y-1 relative" id="profileSection"></div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 h-full relative">
+        <header class="h-[64px] flex items-center justify-between px-6 border-b border-gray-50 bg-white/80 backdrop-blur-md shrink-0 relative">
+            <div class="flex items-center gap-4">
+                <button id="sidebarToggle" class="flex flex-col gap-1.5 p-1 md:hidden">
+                    <span class="w-6 h-0.5 bg-gray-600 rounded-full"></span>
+                    <span class="w-4 h-0.5 bg-gray-600 rounded-full"></span>
+                </button>
+            </div>
+
+            <div id="modelSelectorTop" class="hidden">
+                <button id="currentModelBtn" class="glass px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white/90 transition-all">
+                    <span id="activeModelName">mistral-small-3.2</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+                </button>
+                
+                <div id="modelDropdown" class="glass absolute top-full left-0 mt-2 w-56 rounded-2xl shadow-xl hidden animate-pop overflow-hidden">
+                    <div class="p-1.5 space-y-0.5" id="chatModelsList"></div>
+                </div>
+            </div>
+
+            <div id="authButtons">
+                <button id="loginBtnHeader" onclick="window.navigateToPage('login.html')" class="bg-black text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-800 transition-all" data-i18n="common.login">تسجيل الدخول</button>
+            </div>
+        </header>
+
+        <div id="chatWindow" class="flex-1 overflow-y-auto hide-scrollbar scroll-smooth bg-white">
+            <div id="emptyView" class="min-h-full flex flex-col items-center justify-center text-center p-12 opacity-30 select-none">
+                <img src="logo.jpg" class="w-20 h-20 mb-4 grayscale" alt="Logo">
+                <h2 class="text-2xl font-bold" data-i18n="chat.empty_title">Afnan ai</h2>
+            </div>
+            <div id="messageBox" class="max-w-4xl mx-auto p-4 md:p-8 flex flex-col gap-8"></div>
+        </div>
+
+        <div class="w-full bg-white p-4 md:p-8 pt-5 shrink-0 safe-pb">
+            <div class="max-w-3xl mx-auto relative">
+                <div id="inputContainer" class="chat-input-container bg-white border border-gray-200 rounded-[2.2rem] flex flex-col shadow-lg transition-all relative">
+                    <div id="attachmentPreview" class="px-4 pt-4 hidden flex-wrap gap-3 pb-3 bg-gradient-to-b from-gray-50/50 to-transparent"></div>
+                    <div class="flex items-end gap-1.5 p-2 focus-within:ring-1 focus-within:ring-gray-100 rounded-[2.2rem] relative transition-all duration-300">
+                        <div class="relative flex items-center gap-1">
+                            <button id="mainAttachBtn" type="button" class="w-11 h-11 flex items-center justify-center rounded-full text-gray-900 bg-white shadow-sm cursor-pointer transition-all active:scale-90 hover:shadow-md">
+                                <i class="fa-solid fa-plus text-lg"></i>
+                            </button>
+                        </div>
+                        <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="اسأل Afnan ai..." class="flex-1 bg-transparent border-none focus:ring-0 py-4 px-3 text-[16px] resize-none max-h-40 hide-scrollbar" dir="auto"></textarea>
+                        <div class="flex items-center gap-2 mb-1 mr-1">
+                            <button id="sendBtn" class="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center disabled:opacity-50 transition-all active:scale-90"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image/Video Generator Modal -->
+    <div id="generatorModal" class="generator-modal" onclick="if(event.target === this) window.closeGenerator()">
+        <div class="generator-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="generatorTitle" class="text-xl font-black">توليد الصور</h2>
+                <button onclick="window.closeGenerator()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+
+            <div class="space-y-6">
+                <div class="relative">
+                    <textarea id="genPrompt" data-i18n="[placeholder]generator.prompt_placeholder" placeholder="اكتب وصفاً هنا..." class="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm min-h-[100px] resize-none focus:ring-1 focus:ring-black"></textarea>
+                    <button id="genSendBtn" class="absolute bottom-3 left-3 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+                </div>
+
+                <div id="genAttachments" class="space-y-2">
+                    <span data-i18n="generator.attached_images" class="section-label">الصور المرفقة</span>
+                    <div class="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+                        <div onclick="document.getElementById('genFileInput').click()" class="w-16 h-16 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center shrink-0 cursor-pointer hover:bg-gray-50">
+                            <i class="fa-solid fa-plus text-gray-300"></i>
+                        </div>
+                        <div id="genPreviewList" class="flex gap-2"></div>
+                    </div>
+                    <input type="file" id="genFileInput" class="hidden" multiple accept="image/*">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <span data-i18n="generator.model_label" class="section-label">نموذج التوليد</span>
+                        <select id="genModel" class="w-full bg-gray-50 border-none rounded-xl p-3 text-xs font-bold focus:ring-1 focus:ring-black"></select>
+                    </div>
+                    <div class="space-y-2">
+                        <span data-i18n="generator.size_label" class="section-label">الحجم</span>
+                        <div class="flex gap-1 bg-gray-50 p-1 rounded-xl">
+                            <button onclick="window.setGenSize('1:1')" class="size-opt flex-1 py-2 text-[10px] font-bold rounded-lg active" data-size="1:1">1:1</button>
+                            <button onclick="window.setGenSize('9:16')" class="size-opt flex-1 py-2 text-[10px] font-bold rounded-lg" data-size="9:16">9:16</button>
+                            <button onclick="window.setGenSize('16:9')" class="size-opt flex-1 py-2 text-[10px] font-bold rounded-lg" data-size="16:9">16:9</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="videoOptions" class="space-y-2 hidden">
+                    <span data-i18n="generator.duration_label" class="section-label">مدة التوليد</span>
+                    <div class="flex gap-2">
+                        <button onclick="window.setGenDuration(5)" class="dur-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold active" data-dur="5">5 <span data-i18n="generator.seconds">ث</span></button>
+                        <button onclick="window.setGenDuration(10)" class="dur-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-dur="10">10 <span data-i18n="generator.seconds">ث</span></button>
+                        <button onclick="window.setGenDuration(15)" class="dur-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-dur="15">15 <span data-i18n="generator.seconds">ث</span></button>
+                        <button onclick="window.setGenDuration(20)" class="dur-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-dur="20">20 <span data-i18n="generator.seconds">ث</span></button>
+                    </div>
+                </div>
+
+                <div id="imageOptions" class="space-y-2">
+                    <span data-i18n="generator.count_label" class="section-label">عدد الصور المولدة</span>
+                    <div class="flex gap-2">
+                        <button onclick="window.setGenCount(1)" class="count-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold active" data-count="1">1x</button>
+                        <button onclick="window.setGenCount(2)" class="count-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-count="2">2x</button>
+                        <button onclick="window.setGenCount(3)" class="count-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-count="3">3x</button>
+                        <button onclick="window.setGenCount(4)" class="count-opt flex-1 py-3 bg-gray-50 rounded-xl text-xs font-bold" data-count="4">4x</button>
+                    </div>
+                </div>
+
+                <button onclick="window.closeGenerator()" class="w-full py-4 text-gray-400 font-bold text-sm">
+                    <span data-i18n="generator.hide_settings">إخفاء الإعدادات</span>
+                    <i class="fa-solid fa-chevron-down ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="glass rounded-2xl shadow-2xl overflow-hidden absolute hidden z-[5000]">
+        <div class="p-1.5 space-y-0.5">
+            <div id="ctxPin" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center gap-3 transition-all">
+                <i class="fa-solid fa-thumbtack text-blue-500 text-xs"></i>
+                <span data-i18n="chat.pin_chat" class="text-xs font-bold">تثبيت المحادثة</span>
+            </div>
+            <div id="ctxFav" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center gap-3 transition-all">
+                <i class="fa-solid fa-star text-yellow-500 text-xs"></i>
+                <span data-i18n="chat.fav_chat" class="text-xs font-bold">إضافة للمفضلة</span>
+            </div>
+            <div id="ctxDel" class="p-3 hover:bg-red-50 rounded-xl cursor-pointer flex items-center gap-3 transition-all text-red-500">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+                <span data-i18n="chat.del_chat" class="text-xs font-bold">حذف المحادثة</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="imageViewer" class="fixed inset-0 bg-black/95 z-[5000] hidden flex-col" onclick="if(event.target === this) window.closeImageViewer()">
+        <div class="flex justify-between items-center p-6 text-white">
+            <button onclick="window.closeImageViewer()" class="text-2xl hover:bg-white/10 p-2 rounded-lg transition-all"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex-1 flex items-center justify-center p-4">
+            <img id="viewerImg" src="" class="max-w-full max-h-full object-contain rounded-2xl">
+        </div>
+    </div>
+
+    <div id="logoutConfirm" class="hidden fixed inset-0 bg-black/40 z-[9999] items-center justify-center">
+        <div class="glass p-8 rounded-3xl text-center max-w-xs w-full mx-4 shadow-2xl">
+            <h3 data-i18n="common.confirm_logout" class="text-xl font-bold mb-6">هل أنت متأكد من تسجيل الخروج؟</h3>
+            <div class="flex gap-4">
+                <button id="confirmYes" data-i18n="common.yes" class="flex-1 bg-black text-white py-3 rounded-2xl font-bold">نعم</button>
+                <button id="confirmNo" data-i18n="common.no" class="flex-1 bg-gray-100 text-gray-800 py-3 rounded-2xl font-bold">لا</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
