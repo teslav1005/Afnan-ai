@@ -6,23 +6,51 @@
     <title>Afnan AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- i18next Libraries -->
     <script src="https://unpkg.com/i18next@23.2.3/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@2.2.1/i18nextHttpBackend.min.js"></script>
     <script src="https://unpkg.com/i18next-browser-languagedetector@7.1.0/i18nextBrowserLanguageDetector.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        .mode-options-container { display: none; opacity: 0; transition: opacity 0.3s ease; }
-        .mode-options-container.active { display: block; opacity: 1; }
+        /* Floating Menus Styles */
+        .mode-popup {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 2000;
+            width: 160px;
+            overflow: hidden;
+            animation: popIn 0.2s ease-out;
+        }
+        .settings-panel {
+            background: #f9fafb;
+            border-radius: 1.5rem;
+            margin-top: 10px;
+            padding: 16px;
+            display: none;
+            border: 1px solid #f3f4f6;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .option-btn.active { background: black; color: white; }
+        .mode-item { display: flex; items-center: center; gap: 10px; padding: 12px 16px; cursor: pointer; transition: background 0.2s; font-size: 13px; font-weight: 700; }
+        .mode-item:hover { background: #f3f4f6; }
+        
         #sidebar { z-index: 1000; }
         #overlay { z-index: 900; }
-        .chat-input-wrapper { border: 1px solid #e5e7eb; border-radius: 2rem; background: white; }
+        .chat-input-wrapper { border: 1px solid #e5e7eb; border-radius: 2rem; background: white; padding: 6px; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
 
-    <div id="overlay" class="fixed inset-0 bg-black/20 hidden"></div>
+    <div id="overlay" class="fixed inset-0 bg-black/10 hidden"></div>
 
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#fcfcfc] border-r border-gray-100 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 h-full">
         <div class="p-4 space-y-4">
@@ -30,20 +58,10 @@
                 <button id="langToggle" class="bg-gray-100 px-3 py-1.5 rounded-xl font-bold text-xs">EN</button>
                 <img src="logo.jpg" class="w-8 h-8 rounded-full">
             </div>
-            <button id="newChatBtn" class="w-full bg-white border border-gray-100 p-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm">
+            <button id="newChatBtn" class="w-full bg-white border border-gray-100 p-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm active:scale-95">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span data-i18n="common.new_chat">محادثة جديدة</span>
             </button>
-            <div class="flex gap-2">
-                <button id="btnImgMode" class="flex-1 bg-white border border-gray-100 p-3 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1">
-                    <i class="fa-solid fa-image text-blue-500"></i>
-                    <span data-i18n="common.image_gen">توليد الصور</span>
-                </button>
-                <button id="btnVidMode" class="flex-1 bg-white border border-gray-100 p-3 rounded-xl font-bold text-[10px] flex items-center justify-center gap-1">
-                    <i class="fa-solid fa-video text-purple-500"></i>
-                    <span data-i18n="common.video_gen">توليد الفيديو</span>
-                </button>
-            </div>
         </div>
         <div id="historyList" class="flex-1 overflow-y-auto px-4">
             <p data-i18n="common.recent" class="text-[10px] font-bold text-gray-400 mb-2">الأخيرة</p>
@@ -55,15 +73,7 @@
     <main class="flex-1 flex flex-col h-screen relative">
         <header class="h-16 flex items-center justify-between px-6 border-b border-gray-50 shrink-0">
             <button id="sidebarToggle" class="md:hidden p-2"><i class="fa-solid fa-bars"></i></button>
-            <div id="modelSelectorTop" class="hidden relative">
-                <button id="currentModelBtn" class="bg-gray-50 px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                    <span id="activeModelName">mistral-small-3.2</span>
-                    <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                </button>
-                <div id="modelDropdown" class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl hidden z-[2000]">
-                    <div id="chatModelsList" class="p-2 space-y-1"></div>
-                </div>
-            </div>
+            <div class="flex-1"></div>
             <button id="loginBtnHeader" class="bg-black text-white px-6 py-2 rounded-full text-xs font-bold">تسجيل الدخول</button>
         </header>
 
@@ -76,48 +86,80 @@
         </div>
 
         <div class="p-4 md:p-8 pt-0">
-            <div class="max-w-3xl mx-auto chat-input-wrapper p-2">
-                <div id="modeOptions" class="mode-options-container p-4 border-b border-gray-50 mb-2">
+            <div class="max-w-3xl mx-auto">
+                <!-- Unified Input Area -->
+                <div class="chat-input-wrapper relative">
+                    <!-- Mode Selection Popup -->
+                    <div id="modePopup" class="mode-popup">
+                        <div class="mode-item" onclick="window.switchMode('chat')">
+                            <i class="fa-solid fa-comment text-gray-400"></i>
+                            <span data-i18n="common.chat_mode">Chat</span>
+                        </div>
+                        <div class="mode-item" onclick="window.switchMode('image')">
+                            <i class="fa-solid fa-image text-blue-500"></i>
+                            <span data-i18n="common.image_gen">Image</span>
+                        </div>
+                        <div class="mode-item" onclick="window.switchMode('video')">
+                            <i class="fa-solid fa-video text-purple-500"></i>
+                            <span data-i18n="common.video_gen">Video</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end gap-2 p-1">
+                        <div class="relative">
+                            <button id="mainAttachBtn" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all">
+                                <i id="attachIcon" class="fa-solid fa-plus text-lg"></i>
+                            </button>
+                        </div>
+                        <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="اسأل Afnan ai..." class="flex-1 bg-transparent border-none focus:ring-0 py-3 px-1 text-[16px] resize-none max-h-40 hide-scrollbar" dir="auto"></textarea>
+                        <button id="sendBtn" class="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center transition-all active:scale-90">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Settings Panel (Appears Below Input) -->
+                <div id="settingsPanel" class="settings-panel">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 id="modeTitle" class="text-xs font-black text-gray-400 uppercase">توليد الصور</h3>
-                        <button id="btnCancelMode" class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-lg">إلغاء</button>
+                        <h3 id="panelTitle" class="text-xs font-black text-gray-400 uppercase">Settings</h3>
+                        <button onclick="window.hideSettings()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-xmark text-sm"></i></button>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
-                            <label data-i18n="generator.model_label" class="text-[10px] font-bold text-gray-400">النموذج</label>
-                            <select id="genModel" class="w-full bg-gray-50 border-none rounded-xl p-2 text-xs font-bold"></select>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="generator.model_label">Model</label>
+                            <select id="genModel" class="w-full bg-white border border-gray-100 rounded-xl p-2.5 text-xs font-bold focus:ring-1 focus:ring-black"></select>
                         </div>
                         <div class="space-y-1">
-                            <label data-i18n="generator.size_label" class="text-[10px] font-bold text-gray-400">الحجم</label>
-                            <div class="flex gap-1 bg-gray-50 p-1 rounded-xl">
-                                <button class="size-opt flex-1 py-1 text-[10px] font-bold rounded-lg active" data-size="1:1">1:1</button>
-                                <button class="size-opt flex-1 py-1 text-[10px] font-bold rounded-lg" data-size="9:16">9:16</button>
-                                <button class="size-opt flex-1 py-1 text-[10px] font-bold rounded-lg" data-size="16:9">16:9</button>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="generator.size_label">Size</label>
+                            <div class="flex gap-1 bg-white border border-gray-100 p-1 rounded-xl">
+                                <button class="size-opt flex-1 py-1.5 text-[10px] font-bold rounded-lg active" data-size="1:1">1:1</button>
+                                <button class="size-opt flex-1 py-1.5 text-[10px] font-bold rounded-lg" data-size="9:16">9:16</button>
+                                <button class="size-opt flex-1 py-1.5 text-[10px] font-bold rounded-lg" data-size="16:9">16:9</button>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Mode Specific Options -->
                     <div id="imageOptions" class="mt-4 space-y-1">
-                        <label data-i18n="generator.count_label" class="text-[10px] font-bold text-gray-400">العدد</label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="generator.count_label">Count</label>
                         <div class="flex gap-2">
-                            <button class="count-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold active" data-count="1">1x</button>
-                            <button class="count-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold" data-count="2">2x</button>
-                            <button class="count-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold" data-count="3">3x</button>
-                            <button class="count-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold" data-count="4">4x</button>
+                            <button class="count-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold active" data-count="1">1x</button>
+                            <button class="count-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold" data-count="2">2x</button>
+                            <button class="count-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold" data-count="3">3x</button>
+                            <button class="count-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold" data-count="4">4x</button>
                         </div>
                     </div>
+                    
                     <div id="videoOptions" class="mt-4 space-y-1 hidden">
-                        <label data-i18n="generator.duration_label" class="text-[10px] font-bold text-gray-400">المدة</label>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider" data-i18n="generator.duration_label">Duration</label>
                         <div class="flex gap-2">
-                            <button class="dur-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold active" data-dur="5">5ث</button>
-                            <button class="dur-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold" data-dur="10">10ث</button>
-                            <button class="dur-opt flex-1 py-2 bg-gray-50 rounded-xl text-[10px] font-bold" data-dur="15">15ث</button>
+                            <button class="dur-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold active" data-dur="5">5s</button>
+                            <button class="dur-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold" data-dur="10">10s</button>
+                            <button class="dur-opt flex-1 py-2.5 bg-white border border-gray-100 rounded-xl text-[10px] font-bold" data-dur="15">15s</button>
                         </div>
                     </div>
-                </div>
-                <div class="flex items-end gap-2 p-1">
-                    <button id="mainAttachBtn" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all"><i id="attachIcon" class="fa-solid fa-plus text-lg"></i></button>
-                    <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="اسأل Afnan ai..." class="flex-1 bg-transparent border-none focus:ring-0 py-3 px-1 text-[16px] resize-none max-h-40 hide-scrollbar" dir="auto"></textarea>
-                    <button id="sendBtn" class="w-11 h-11 bg-black text-white rounded-full flex items-center justify-center transition-all active:scale-90"><i class="fa-solid fa-arrow-up"></i></button>
+
+                    <button onclick="window.hideSettings()" class="w-full mt-4 py-2 text-[10px] font-bold text-gray-400 hover:text-black transition-colors" data-i18n="generator.hide_settings">Hide Settings</button>
                 </div>
             </div>
         </div>
@@ -125,10 +167,10 @@
 
     <div id="logoutConfirm" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-[5000]">
         <div class="bg-white p-8 rounded-3xl text-center max-w-xs w-full shadow-2xl">
-            <h3 data-i18n="common.confirm_logout" class="text-xl font-bold mb-6">تأكيد تسجيل الخروج؟</h3>
+            <h3 data-i18n="common.confirm_logout" class="text-xl font-bold mb-6">Logout?</h3>
             <div class="flex gap-4">
-                <button id="confirmYes" class="flex-1 bg-black text-white py-3 rounded-2xl font-bold">نعم</button>
-                <button id="confirmNo" class="flex-1 bg-gray-100 py-3 rounded-2xl font-bold">لا</button>
+                <button id="confirmYes" class="flex-1 bg-black text-white py-3 rounded-2xl font-bold">Yes</button>
+                <button id="confirmNo" class="flex-1 bg-gray-100 py-3 rounded-2xl font-bold">No</button>
             </div>
         </div>
     </div>
