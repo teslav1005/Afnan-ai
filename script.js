@@ -9,9 +9,7 @@ i18next
   .init({
     fallbackLng: 'ar',
     debug: false,
-    backend: {
-      loadPath: 'lang/{{lng}}.json', // Fixed path: removed leading slash
-    }
+    backend: { loadPath: 'lang/{{lng}}.json' }
   }, function(err, t) {
     updateContent();
   });
@@ -26,8 +24,6 @@ function updateContent() {
             el.innerHTML = i18next.t(key);
         }
     });
-    
-    // Update direction and lang attribute
     const lang = i18next.language.startsWith('en') ? 'en' : 'ar';
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -46,10 +42,10 @@ let currentUser = null;
 let currentChatId = null;
 let pendingAttachment = null;
 let currentModel = 'mistral-small-3.2';
+let currentMode = 'chat'; // chat, image, video
 let unsubscribeHistory = null;
 
 let genSettings = {
-    type: 'image',
     model: 'nanobanana-2',
     size: '1:1',
     duration: 5,
@@ -68,6 +64,7 @@ const dom = {
     confirmYes: document.getElementById('confirmYes'),
     confirmNo: document.getElementById('confirmNo'),
     attachBtn: document.getElementById('mainAttachBtn'),
+    attachIcon: document.getElementById('attachIcon'),
     newChatBtn: document.getElementById('newChatBtn'),
     historyList: document.getElementById('historyList'),
     attachmentPreview: document.getElementById('attachmentPreview'),
@@ -77,21 +74,12 @@ const dom = {
     currentModelBtn: document.getElementById('currentModelBtn'),
     modelDropdown: document.getElementById('modelDropdown'),
     activeModelName: document.getElementById('activeModelName'),
-    historySearch: document.getElementById('historySearch'),
-    contextMenu: document.getElementById('contextMenu'),
-    pinnedList: document.getElementById('pinnedList'),
-    favoritesList: document.getElementById('favoritesList'),
     recentList: document.getElementById('recentList'),
-    pinnedSection: document.getElementById('pinnedSection'),
-    favoritesSection: document.getElementById('favoritesSection'),
-    generatorModal: document.getElementById('generatorModal'),
+    modeOptions: document.getElementById('modeOptions'),
+    modeTitle: document.getElementById('modeTitle'),
     genModel: document.getElementById('genModel'),
     videoOptions: document.getElementById('videoOptions'),
-    imageOptions: document.getElementById('imageOptions'),
-    generatorTitle: document.getElementById('generatorTitle'),
-    genPrompt: document.getElementById('genPrompt'),
-    genPreviewList: document.getElementById('genPreviewList'),
-    genFileInput: document.getElementById('genFileInput')
+    imageOptions: document.getElementById('imageOptions')
 };
 
 const chatModels = [
@@ -119,13 +107,12 @@ const videoModels = [
 onAuthStateChanged(auth, async (user) => {
     const loginBtnHeader = document.getElementById('loginBtnHeader');
     const profileSection = document.getElementById('profileSection');
-
     if (!user) {
         currentUser = null;
         if (loginBtnHeader) loginBtnHeader.style.display = 'block';
         dom.modelSelectorTop.classList.add('hidden');
         profileSection.innerHTML = '';
-        dom.historyList.innerHTML = '';
+        dom.recentList.innerHTML = '';
         if (unsubscribeHistory) unsubscribeHistory();
     } else {
         currentUser = user;
@@ -176,7 +163,6 @@ const setupProfileListeners = () => {
     const trigger = document.getElementById('profileTrigger');
     const popup = document.getElementById('profilePopup');
     if (trigger) trigger.onclick = (e) => { e.stopPropagation(); popup.classList.toggle('hidden'); };
-    
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.onclick = () => {
         dom.logoutConfirm.classList.remove('hidden');
@@ -185,31 +171,28 @@ const setupProfileListeners = () => {
     };
 };
 
-dom.confirmYes.onclick = async () => {
-    await signOut(auth);
-    dom.logoutConfirm.classList.add('hidden');
-    dom.logoutConfirm.style.display = 'none';
-    window.location.reload();
-};
-dom.confirmNo.onclick = () => {
-    dom.logoutConfirm.classList.add('hidden');
-    dom.logoutConfirm.style.display = 'none';
-};
+dom.confirmYes.onclick = async () => { await signOut(auth); window.location.reload(); };
+dom.confirmNo.onclick = () => { dom.logoutConfirm.classList.add('hidden'); dom.logoutConfirm.style.display = 'none'; };
 
-window.openGenerator = (type) => {
-    genSettings.type = type;
-    dom.generatorTitle.textContent = i18next.t(type === 'image' ? 'generator.title_image' : 'generator.title_video');
-    dom.videoOptions.classList.toggle('hidden', type === 'image');
-    dom.imageOptions.classList.toggle('hidden', type === 'video');
+window.switchMode = (mode) => {
+    currentMode = mode;
+    if (mode === 'chat') {
+        dom.modeOptions.classList.remove('active');
+        dom.attachIcon.className = 'fa-solid fa-plus text-lg';
+        return;
+    }
     
-    const models = type === 'image' ? imageModels : videoModels;
+    dom.modeTitle.textContent = i18next.t(mode === 'image' ? 'generator.title_image' : 'generator.title_video');
+    dom.videoOptions.classList.toggle('hidden', mode === 'image');
+    dom.imageOptions.classList.toggle('hidden', mode === 'video');
+    dom.attachIcon.className = mode === 'image' ? 'fa-solid fa-image text-blue-500' : 'fa-solid fa-video text-purple-500';
+    
+    const models = mode === 'image' ? imageModels : videoModels;
     dom.genModel.innerHTML = models.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
     genSettings.model = models[0].id;
     
-    dom.generatorModal.style.display = 'flex';
+    dom.modeOptions.classList.add('active');
 };
-
-window.closeGenerator = () => dom.generatorModal.style.display = 'none';
 
 window.setGenSize = (size) => {
     genSettings.size = size;
@@ -226,51 +209,24 @@ window.setGenCount = (count) => {
     document.querySelectorAll('.count-opt').forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.count) === count));
 };
 
-dom.genFileInput.onchange = (e) => {
-    const files = Array.from(e.target.files);
-    files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const div = document.createElement('div');
-            div.className = 'relative shrink-0 w-16 h-16';
-            div.innerHTML = `
-                <img src="${event.target.result}" class="w-full h-full object-cover rounded-xl">
-                <button onclick="this.parentElement.remove()" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px]"><i class="fa-solid fa-xmark"></i></button>
-            `;
-            dom.genPreviewList.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-    });
-};
-
-document.getElementById('sidebarToggle').onclick = () => {
-    dom.sidebar.classList.remove(i18next.language.startsWith('ar') ? '-translate-x-full' : 'translate-x-full');
-    dom.overlay.classList.remove('hidden');
-    dom.overlay.style.opacity = '1';
-};
-
-dom.overlay.onclick = () => {
-    dom.sidebar.classList.add(i18next.language.startsWith('ar') ? '-translate-x-full' : 'translate-x-full');
-    dom.overlay.classList.add('hidden');
-    dom.overlay.style.opacity = '0';
-};
-
-dom.currentModelBtn.onclick = (e) => {
-    e.stopPropagation();
-    dom.modelDropdown.classList.toggle('hidden');
-};
-
 window.handleSend = async () => {
     const val = dom.chatInput.value.trim();
     if (!val && !pendingAttachment) return;
     if (!currentUser) { window.navigateToPage('login.html'); return; }
 
     dom.emptyView.style.display = 'none';
+    
+    // Build context for generation if not in chat mode
+    let modeContext = "";
+    if (currentMode !== 'chat') {
+        modeContext = `\n[Mode: ${currentMode}, Model: ${dom.genModel.value}, Size: ${genSettings.size}, ${currentMode === 'image' ? 'Count: ' + genSettings.count : 'Duration: ' + genSettings.duration + 's'}]`;
+    }
+
     appendMessage('user', val, pendingAttachment);
     
-    const currentText = val;
+    const currentText = val + modeContext;
     const currentAttach = pendingAttachment;
-    const activeModel = currentModel;
+    const activeModel = currentMode === 'chat' ? currentModel : dom.genModel.value;
     
     dom.chatInput.value = '';
     pendingAttachment = null;
@@ -293,7 +249,7 @@ window.handleSend = async () => {
         if (!currentChatId) {
             const docRef = await addDoc(collection(db, 'chats'), {
                 userId: currentUser.uid,
-                title: currentText.substring(0, 30),
+                title: val.substring(0, 30),
                 messages: [msgUser, msgBot],
                 updatedAt: serverTimestamp()
             });
@@ -310,13 +266,7 @@ window.handleSend = async () => {
 const appendMessage = (sender, text, attachment) => {
     const div = document.createElement('div');
     div.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
-    
     let content = text;
-    if (attachment) {
-        if (attachment.type === 'image') content = `<img src="${attachment.data}" class="w-48 rounded-lg mb-2">${text}`;
-        else content = `<div class="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-2"><i class="fa-solid fa-file"></i><span>${attachment.name}</span></div>${text}`;
-    }
-
     const isAr = i18next.language.startsWith('ar');
     if (sender === 'user') {
         div.innerHTML = `<div class="bg-[#F4F4F4] px-5 py-3.5 rounded-[1.8rem] ${isAr ? 'rounded-tr-md' : 'rounded-tl-md'} max-w-[80%] text-[14px]">${content}</div>`;
@@ -353,7 +303,11 @@ window.loadChat = async (id) => {
     }
 };
 
-dom.mainAttachBtn.onclick = () => window.openGenerator('image');
+dom.mainAttachBtn.onclick = () => {
+    if (currentMode === 'chat') window.switchMode('image');
+    else window.switchMode('chat');
+};
+
 dom.newChatBtn.onclick = () => {
     currentChatId = null;
     dom.messageBox.innerHTML = '';
@@ -361,8 +315,17 @@ dom.newChatBtn.onclick = () => {
     window.toast(i18next.t('common.toast_new_chat'));
 };
 
-dom.sendBtn.onclick = window.handleSend;
-dom.chatInput.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.handleSend(); } };
+dom.sendBtn.onclick = (e) => {
+    e.preventDefault();
+    window.handleSend();
+};
+
+dom.chatInput.onkeydown = (e) => { 
+    if(e.key === 'Enter' && !e.shiftKey) { 
+        e.preventDefault(); 
+        window.handleSend(); 
+    } 
+};
 
 window.toast = (msg) => {
     const t = document.createElement('div');
@@ -374,14 +337,26 @@ window.toast = (msg) => {
 
 window.navigateToPage = (page) => window.location.href = page;
 window.closeImageViewer = () => dom.imageViewer.classList.add('hidden');
-window.openImageViewer = (src) => {
-    dom.viewerImg.src = src;
-    dom.imageViewer.classList.remove('hidden');
+
+document.getElementById('sidebarToggle').onclick = () => {
+    dom.sidebar.classList.remove(i18next.language.startsWith('ar') ? '-translate-x-full' : 'translate-x-full');
+    dom.overlay.classList.remove('hidden');
+    dom.overlay.style.opacity = '1';
 };
 
-// Global click listener for dropdowns
+dom.overlay.onclick = () => {
+    dom.sidebar.classList.add(i18next.language.startsWith('ar') ? '-translate-x-full' : 'translate-x-full');
+    dom.overlay.classList.add('hidden');
+    dom.overlay.style.opacity = '0';
+};
+
+dom.currentModelBtn.onclick = (e) => {
+    e.stopPropagation();
+    dom.modelDropdown.classList.toggle('hidden');
+};
+
 window.onclick = (e) => {
-    if (!dom.currentModelBtn.contains(e.target)) {
+    if (dom.currentModelBtn && !dom.currentModelBtn.contains(e.target)) {
         dom.modelDropdown.classList.add('hidden');
     }
 };
