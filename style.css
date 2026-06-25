@@ -510,3 +510,17 @@ input:focus, textarea:focus, select:focus, button:focus {
     background: white;
     border-color: #e5e7eb;
 }
+
+/* i18n alignment fixes */
+html[dir="rtl"] .profile-text-align { text-align: right; }
+html[dir="ltr"] .profile-text-align { text-align: left; }
+
+html[dir="rtl"] .profile-popup-align { left: 10px; right: auto; }
+html[dir="ltr"] .profile-popup-align { right: 10px; left: auto; }
+
+/* Ensure modal is centered and visible */
+#logoutConfirm {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}

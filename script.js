@@ -10,7 +10,7 @@ i18next
     fallbackLng: 'ar',
     debug: false,
     backend: {
-      loadPath: '/lang/{{lng}}.json',
+      loadPath: 'lang/{{lng}}.json', // Fixed path: removed leading slash
     }
   }, function(err, t) {
     updateContent();
@@ -38,7 +38,7 @@ window.toggleLanguage = () => {
     const newLang = i18next.language.startsWith('ar') ? 'en' : 'ar';
     i18next.changeLanguage(newLang, () => {
         updateContent();
-        renderChatModels(); // Re-render to update model names if needed
+        renderChatModels();
     });
 };
 
@@ -135,19 +135,19 @@ onAuthStateChanged(auth, async (user) => {
         profileSection.innerHTML = `
             <div id="profileTrigger" class="flex items-center gap-3 p-2.5 rounded-2xl cursor-pointer hover:bg-gray-200/50 transition-all">
                 <img src="${user.photoURL || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full bg-black object-cover">
-                <div class="flex-1 min-w-0 ${i18next.language.startsWith('ar') ? 'text-right' : 'text-left'}">
+                <div class="flex-1 min-w-0 profile-text-align">
                     <p class="text-xs font-bold truncate">${user.displayName || 'User'}</p>
                     <p class="text-[10px] text-gray-500 truncate">${user.email || ''}</p>
                 </div>
                 <i class="fa-solid fa-ellipsis-vertical text-gray-300 text-xs"></i>
             </div>
-            <div id="profilePopup" class="glass p-2 space-y-1 hidden absolute bottom-[70px] ${i18next.language.startsWith('ar') ? 'left-[10px]' : 'right-[10px]'} w-[220px] z-[200] rounded-[1.5rem] shadow-xl">
-                <a href="privacy.html" class="block p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.privacy_policy">سياسة الخصوصية</a>
-                <a href="terms.html" class="block p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.terms_of_service">اتفاقية المستخدم</a>
-                <button id="logoutBtn" class="w-full ${i18next.language.startsWith('ar') ? 'text-right' : 'text-left'} p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.logout">تسجيل الخروج</button>
+            <div id="profilePopup" class="glass p-2 space-y-1 hidden absolute bottom-[70px] profile-popup-align w-[220px] z-[200] rounded-[1.5rem] shadow-xl">
+                <a href="privacy.html" class="block p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.privacy_policy"></a>
+                <a href="terms.html" class="block p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.terms_of_service"></a>
+                <button id="logoutBtn" class="w-full profile-text-align p-3 text-sm hover:bg-gray-100 rounded-xl" data-i18n="common.logout"></button>
             </div>
         `;
-        updateContent(); // Translate new profile elements
+        updateContent();
         setupProfileListeners();
         listenToChatHistory();
     }
@@ -155,6 +155,7 @@ onAuthStateChanged(auth, async (user) => {
 
 const renderChatModels = () => {
     const list = document.getElementById('chatModelsList');
+    if (!list) return;
     list.innerHTML = chatModels.map(m => `
         <div onclick="window.selectModel('${m.id}', '${m.name}')" class="p-3 hover:bg-white/50 rounded-xl cursor-pointer flex items-center justify-between transition-all">
             <span class="text-xs font-bold">${m.name}</span>
@@ -175,16 +176,24 @@ const setupProfileListeners = () => {
     const trigger = document.getElementById('profileTrigger');
     const popup = document.getElementById('profilePopup');
     if (trigger) trigger.onclick = (e) => { e.stopPropagation(); popup.classList.toggle('hidden'); };
-    document.getElementById('logoutBtn').onclick = () => {
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = () => {
         dom.logoutConfirm.classList.remove('hidden');
+        dom.logoutConfirm.style.display = 'flex';
         popup.classList.add('hidden');
     };
-    document.getElementById('confirmYes').onclick = async () => {
-        await signOut(auth);
-        dom.logoutConfirm.classList.add('hidden');
-        window.location.reload();
-    };
-    document.getElementById('confirmNo').onclick = () => dom.logoutConfirm.classList.add('hidden');
+};
+
+dom.confirmYes.onclick = async () => {
+    await signOut(auth);
+    dom.logoutConfirm.classList.add('hidden');
+    dom.logoutConfirm.style.display = 'none';
+    window.location.reload();
+};
+dom.confirmNo.onclick = () => {
+    dom.logoutConfirm.classList.add('hidden');
+    dom.logoutConfirm.style.display = 'none';
 };
 
 window.openGenerator = (type) => {
@@ -246,6 +255,11 @@ dom.overlay.onclick = () => {
     dom.overlay.style.opacity = '0';
 };
 
+dom.currentModelBtn.onclick = (e) => {
+    e.stopPropagation();
+    dom.modelDropdown.classList.toggle('hidden');
+};
+
 window.handleSend = async () => {
     const val = dom.chatInput.value.trim();
     if (!val && !pendingAttachment) return;
@@ -303,10 +317,11 @@ const appendMessage = (sender, text, attachment) => {
         else content = `<div class="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mb-2"><i class="fa-solid fa-file"></i><span>${attachment.name}</span></div>${text}`;
     }
 
+    const isAr = i18next.language.startsWith('ar');
     if (sender === 'user') {
-        div.innerHTML = `<div class="bg-[#F4F4F4] px-5 py-3.5 rounded-[1.8rem] ${i18next.language.startsWith('ar') ? 'rounded-tr-md' : 'rounded-tl-md'} max-w-[80%] text-[14px]">${content}</div>`;
+        div.innerHTML = `<div class="bg-[#F4F4F4] px-5 py-3.5 rounded-[1.8rem] ${isAr ? 'rounded-tr-md' : 'rounded-tl-md'} max-w-[80%] text-[14px]">${content}</div>`;
     } else {
-        div.innerHTML = `<div class="bg-white border border-gray-100 px-5 py-3.5 rounded-[1.8rem] ${i18next.language.startsWith('ar') ? 'rounded-tl-md' : 'rounded-tr-md'} max-w-[80%] text-[14px] shadow-sm">${content}</div>`;
+        div.innerHTML = `<div class="bg-white border border-gray-100 px-5 py-3.5 rounded-[1.8rem] ${isAr ? 'rounded-tl-md' : 'rounded-tr-md'} max-w-[80%] text-[14px] shadow-sm">${content}</div>`;
     }
     dom.messageBox.appendChild(div);
     dom.chatWindow.scrollTop = dom.chatWindow.scrollHeight;
@@ -362,4 +377,11 @@ window.closeImageViewer = () => dom.imageViewer.classList.add('hidden');
 window.openImageViewer = (src) => {
     dom.viewerImg.src = src;
     dom.imageViewer.classList.remove('hidden');
+};
+
+// Global click listener for dropdowns
+window.onclick = (e) => {
+    if (!dom.currentModelBtn.contains(e.target)) {
+        dom.modelDropdown.classList.add('hidden');
+    }
 };
