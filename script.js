@@ -2,11 +2,12 @@ import { auth, db } from './api.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, addDoc, query, where, getDocs, doc, updateDoc, orderBy, deleteDoc, arrayUnion, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Global Variables
+// Global State
 let currentUser = null;
 let currentChatId = null;
-let currentMode = 'chat'; // chat, image, video
+let currentMode = 'chat';
 let activeModelId = 'mistral-small-3.2';
+let isThinking = false;
 let genSettings = { size: '1:1', duration: 5, count: 1 };
 
 // Models Data
@@ -32,33 +33,30 @@ const modelsData = {
     ]
 };
 
-// DOM Elements
+// DOM Cache
 const getEl = (id) => document.getElementById(id);
 const dom = {
     adaptiveModelList: getEl('adaptiveModelList'),
     modePopup: getEl('modePopup'),
     settingsPanel: getEl('settingsPanel'),
-    panelTitle: getEl('panelTitle'),
-    modeIndicator: getEl('modeIndicator'),
-    videoOptions: getEl('videoOptions'),
-    imageOptions: getEl('imageOptions'),
-    attachIcon: getEl('attachIcon'),
-    mainAttachBtn: getEl('mainAttachBtn'),
+    thinkingToggle: getEl('thinkingToggle'),
+    profileTrigger: getEl('profileTrigger'),
+    profileMenu: getEl('profileMenu'),
+    sidebar: getEl('sidebar'),
+    overlay: getEl('overlay'),
     chatInput: getEl('chatInput'),
     sendBtn: getEl('sendBtn'),
     messageBox: getEl('messageBox'),
     emptyView: getEl('emptyView'),
     chatWindow: getEl('chatWindow'),
-    profileTrigger: getEl('profileTrigger'),
-    profilePopup: getEl('profilePopup'),
+    profileName: getEl('profileName'),
+    profileEmail: getEl('profileEmail'),
+    userPhoto: getEl('userPhoto'),
+    recentList: getEl('recentList'),
+    langToggle: getEl('langToggle'),
     logoutConfirm: getEl('logoutConfirm'),
     confirmYes: getEl('confirmYes'),
-    confirmNo: getEl('confirmNo'),
-    langToggle: getEl('langToggle'),
-    sidebar: getEl('sidebar'),
-    sidebarToggle: getEl('sidebarToggle'),
-    overlay: getEl('overlay'),
-    recentList: getEl('recentList')
+    confirmNo: getEl('confirmNo')
 };
 
 // i18n
@@ -68,9 +66,9 @@ i18next
     .init({
         fallbackLng: 'ar',
         backend: { loadPath: 'lang/{{lng}}.json' }
-    }, (err, t) => { updateUIStrings(); renderAdaptiveModels(); });
+    }, (err, t) => { updateUI(); renderAdaptiveModels(); });
 
-function updateUIStrings() {
+function updateUI() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (key.startsWith('[placeholder]')) el.placeholder = i18next.t(key.replace('[placeholder]', ''));
@@ -83,7 +81,7 @@ function updateUIStrings() {
 
 window.toggleLanguage = () => {
     const next = i18next.language.startsWith('ar') ? 'en' : 'ar';
-    i18next.changeLanguage(next, () => { updateUIStrings(); });
+    i18next.changeLanguage(next, () => { updateUI(); });
 };
 dom.langToggle.onclick = window.toggleLanguage;
 
@@ -92,21 +90,20 @@ onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
         getEl('loginBtnHeader').style.display = 'none';
-        getEl('profileName').textContent = user.displayName || 'User';
-        getEl('userNameDisplay').textContent = user.displayName || 'User';
-        getEl('userEmailDisplay').textContent = user.email || '';
-        getEl('userPhoto').src = user.photoURL || 'logo.jpg';
+        dom.profileName.textContent = user.displayName || 'User';
+        dom.profileEmail.textContent = user.email || '';
+        dom.userPhoto.src = user.photoURL || 'logo.jpg';
         listenToHistory();
     } else {
         getEl('loginBtnHeader').style.display = 'block';
     }
 });
 
-// Dynamic UI Logic
+// UI Handlers
 function renderAdaptiveModels() {
     const models = modelsData[currentMode];
     dom.adaptiveModelList.innerHTML = models.map(m => `
-        <button onclick="window.selectModel('${m.id}')" class="model-chip ${activeModelId === m.id ? 'active' : ''}">${m.name}</button>
+        <button onclick="window.selectModel('${m.id}')" class="mode-chip ${activeModelId === m.id ? 'active' : ''}">${m.name}</button>
     `).join('');
 }
 
@@ -120,46 +117,50 @@ window.switchMode = (mode) => {
     activeModelId = modelsData[mode][0].id;
     dom.modePopup.style.display = 'none';
     
-    // Update Icons & UI
-    if (mode === 'chat') {
-        dom.attachIcon.className = 'fa-solid fa-plus text-xl';
-        dom.settingsPanel.style.display = 'none';
-        dom.modeIndicator.className = 'w-2 h-2 rounded-full bg-gray-300';
-    } else {
-        dom.attachIcon.className = mode === 'image' ? 'fa-solid fa-wand-magic-sparkles text-blue-500' : 'fa-solid fa-clapperboard text-purple-500';
-        dom.modeIndicator.className = `w-2 h-2 rounded-full ${mode === 'image' ? 'bg-blue-500' : 'bg-purple-500'}`;
-        dom.panelTitle.textContent = i18next.t(mode === 'image' ? 'generator.title_image' : 'generator.title_video');
-        dom.imageOptions.classList.toggle('hidden', mode === 'video');
-        dom.videoOptions.classList.toggle('hidden', mode === 'image');
-        dom.settingsPanel.style.display = 'block';
-    }
+    const isChat = mode === 'chat';
+    getEl('attachIcon').className = isChat ? 'fa-solid fa-plus text-xl' : (mode === 'image' ? 'fa-solid fa-sparkles text-blue-500' : 'fa-solid fa-film text-purple-500');
+    getEl('modeIndicator').className = `w-2.5 h-2.5 rounded-full shadow-sm ${isChat ? 'bg-gray-200' : (mode === 'image' ? 'bg-blue-500' : 'bg-purple-500')}`;
+    getEl('panelTitle').textContent = i18next.t(mode === 'image' ? 'generator.title_image' : 'generator.title_video');
+    getEl('imageOptions').classList.toggle('hidden', mode === 'video');
+    getEl('videoOptions').classList.toggle('hidden', mode === 'image');
+    dom.settingsPanel.style.display = isChat ? 'none' : 'block';
+    getEl('chatOptions').style.display = isChat ? 'flex' : 'none';
     
     renderAdaptiveModels();
 };
 
 window.hideSettings = () => dom.settingsPanel.style.display = 'none';
 
-// Interaction Listeners
+dom.thinkingToggle.onclick = () => {
+    isThinking = !isThinking;
+    dom.thinkingToggle.classList.toggle('active', isThinking);
+};
+
+dom.profileTrigger.onclick = (e) => {
+    e.stopPropagation();
+    dom.profileMenu.style.display = dom.profileMenu.style.display === 'block' ? 'none' : 'block';
+};
+
 dom.mainAttachBtn.onclick = (e) => {
     e.stopPropagation();
     dom.modePopup.style.display = dom.modePopup.style.display === 'block' ? 'none' : 'block';
 };
 
-dom.profileTrigger.onclick = (e) => {
-    e.stopPropagation();
-    dom.profilePopup.style.display = dom.profilePopup.style.display === 'block' ? 'none' : 'block';
-};
-
-window.onclick = () => {
+// Global Click (Close Popups & Sidebar)
+window.onclick = (e) => {
     dom.modePopup.style.display = 'none';
-    dom.profilePopup.style.display = 'none';
+    dom.profileMenu.style.display = 'none';
+    if (dom.overlay.contains(e.target)) {
+        dom.sidebar.classList.add('-translate-x-full');
+        dom.overlay.classList.add('hidden');
+    }
 };
 
-// Settings Selection
-document.querySelectorAll('.size-opt').forEach(btn => {
+// Settings
+document.querySelectorAll('.size-btn').forEach(btn => {
     btn.onclick = () => {
         genSettings.size = btn.dataset.size;
-        document.querySelectorAll('.size-opt').forEach(b => b.classList.toggle('active', b.dataset.size === genSettings.size));
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === genSettings.size));
     };
 });
 document.querySelectorAll('.count-opt').forEach(btn => {
@@ -175,7 +176,7 @@ document.querySelectorAll('.dur-opt').forEach(btn => {
     };
 });
 
-// Messaging Logic
+// Send Message
 window.handleSend = async () => {
     const val = dom.chatInput.value.trim();
     if (!val || !currentUser) return;
@@ -186,20 +187,18 @@ window.handleSend = async () => {
     const typing = appendTyping();
 
     try {
-        // Simulating Professional AI Response with Download Button for Media
         const isMedia = currentMode !== 'chat';
         const aiRes = i18next.t('chat.experimental_response', { model: activeModelId });
         typing.remove();
-        
         appendMessage('bot', aiRes, isMedia);
 
-        const fullMsg = val + (isMedia ? `\n[System: ${currentMode.toUpperCase()} Mode | Model: ${activeModelId} | Size: ${genSettings.size}]` : "");
+        const systemTag = isMedia ? `\n[System: ${currentMode.toUpperCase()} | Model: ${activeModelId} | Size: ${genSettings.size}]` : (isThinking ? "\n[Thinking Mode Active]" : "");
         
         const chatData = {
             userId: currentUser.uid,
             title: val.substring(0, 30),
             messages: arrayUnion(
-                { sender: 'user', text: fullMsg, timestamp: new Date() },
+                { sender: 'user', text: val + systemTag, timestamp: new Date() },
                 { sender: 'bot', text: aiRes, isMedia: isMedia, timestamp: new Date() }
             ),
             updatedAt: serverTimestamp()
@@ -211,7 +210,7 @@ window.handleSend = async () => {
         } else {
             await updateDoc(doc(db, 'chats', currentChatId), {
                 messages: arrayUnion(
-                    { sender: 'user', text: fullMsg, timestamp: new Date() },
+                    { sender: 'user', text: val + systemTag, timestamp: new Date() },
                     { sender: 'bot', text: aiRes, isMedia: isMedia, timestamp: new Date() }
                 ),
                 updatedAt: serverTimestamp()
@@ -231,12 +230,12 @@ function appendMessage(sender, text, isMedia = false) {
     let mediaHTML = "";
     if (isMedia && sender === 'bot') {
         mediaHTML = `
-            <div class="mt-4 p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid ${currentMode === 'image' ? 'fa-image' : 'fa-video'} text-gray-400"></i>
-                    <span class="text-[10px] font-bold text-gray-500">${currentMode.toUpperCase()} OUTPUT</span>
+            <div class="mt-6 p-4 bg-gray-50 rounded-3xl border border-gray-100 flex items-center justify-between shadow-inner">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid ${currentMode === 'image' ? 'fa-image' : 'fa-video'} text-gray-400 text-lg"></i>
+                    <span class="text-[11px] font-black text-gray-500 tracking-widest">${currentMode.toUpperCase()} OUTPUT</span>
                 </div>
-                <button class="bg-black text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all">
+                <button class="bg-black text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md">
                     <i class="fa-solid fa-download mr-1"></i> Download
                 </button>
             </div>
@@ -244,7 +243,7 @@ function appendMessage(sender, text, isMedia = false) {
     }
 
     div.innerHTML = `
-        <div class="${sender === 'user' ? 'bg-gray-100 text-gray-800' : 'bg-white border border-gray-100 shadow-sm'} px-6 py-4 rounded-[2rem] max-w-[85%] text-[14px] font-medium leading-relaxed ${sender === 'user' ? (isAr ? 'rounded-tr-none' : 'rounded-tl-none') : (isAr ? 'rounded-tl-none' : 'rounded-tr-none')}">
+        <div class="${sender === 'user' ? 'bg-gray-100 text-gray-800' : 'bg-white border border-gray-100 shadow-sm'} px-8 py-5 rounded-[2.5rem] max-w-[85%] text-[15px] font-medium leading-relaxed ${sender === 'user' ? (isAr ? 'rounded-tr-none' : 'rounded-tl-none') : (isAr ? 'rounded-tl-none' : 'rounded-tr-none')}">
             ${text}
             ${mediaHTML}
         </div>
@@ -256,7 +255,7 @@ function appendMessage(sender, text, isMedia = false) {
 function appendTyping() {
     const div = document.createElement('div');
     div.className = 'flex justify-start';
-    div.innerHTML = `<div class="bg-white border border-gray-100 px-6 py-4 rounded-[2rem] shadow-sm flex gap-1"><div class="w-1.5 h-1.5 bg-gray-200 rounded-full animate-bounce"></div><div class="w-1.5 h-1.5 bg-gray-200 rounded-full animate-bounce" style="animation-delay: 0.2s"></div><div class="w-1.5 h-1.5 bg-gray-200 rounded-full animate-bounce" style="animation-delay: 0.4s"></div></div>`;
+    div.innerHTML = `<div class="bg-white border border-gray-100 px-8 py-5 rounded-[2.5rem] shadow-sm flex gap-1.5"><div class="w-2 h-2 bg-gray-200 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-gray-200 rounded-full animate-bounce" style="animation-delay: 0.2s"></div><div class="w-2 h-2 bg-gray-200 rounded-full animate-bounce" style="animation-delay: 0.4s"></div></div>`;
     dom.messageBox.appendChild(div);
     dom.chatWindow.scrollTop = dom.chatWindow.scrollHeight;
     return div;
@@ -269,7 +268,7 @@ function listenToHistory() {
         dom.recentList.innerHTML = '';
         snap.forEach(docSnap => {
             const item = document.createElement('div');
-            item.className = `sidebar-item p-3.5 cursor-pointer text-xs font-bold truncate ${currentChatId === docSnap.id ? 'bg-gray-100' : ''}`;
+            item.className = `sidebar-item ${currentChatId === docSnap.id ? 'active' : ''}`;
             item.textContent = docSnap.data().title || 'New Chat';
             item.onclick = () => loadChat(docSnap.id);
             dom.recentList.appendChild(item);
@@ -287,10 +286,8 @@ async function loadChat(id) {
     }
 }
 
-dom.sidebarToggle.onclick = () => { dom.sidebar.classList.remove('-translate-x-full'); dom.overlay.classList.remove('hidden'); };
-dom.overlay.onclick = () => { dom.sidebar.classList.add('-translate-x-full'); dom.overlay.classList.add('hidden'); };
+getEl('sidebarToggle').onclick = () => { dom.sidebar.classList.remove('-translate-x-full'); dom.overlay.classList.remove('hidden'); };
 dom.newChatBtn.onclick = () => { currentChatId = null; dom.messageBox.innerHTML = ''; dom.emptyView.style.display = 'flex'; };
 dom.confirmYes.onclick = async () => { await signOut(auth); window.location.reload(); };
-dom.confirmNo.onclick = () => { dom.logoutConfirm.classList.add('hidden'); dom.logoutConfirm.style.display = 'none'; };
-
+dom.confirmNo.onclick = () => { dom.logoutConfirm.classList.add('hidden'); };
 window.navigateTo = (url) => window.location.href = url;

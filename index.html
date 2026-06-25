@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Afnan AI - Studio</title>
+    <title>Afnan AI - Global Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/i18next@23.2.3/dist/umd/i18next.min.js"></script>
@@ -11,31 +11,38 @@
     <script src="https://unpkg.com/i18next-browser-languagedetector@7.1.0/i18nextBrowserLanguageDetector.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        :root { --accent: #000; --glass: rgba(255, 255, 255, 0.8); }
-        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .mode-popup { position: absolute; bottom: 100%; right: 0; margin-bottom: 12px; width: 180px; border-radius: 1.5rem; display: none; z-index: 2000; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .settings-panel { display: none; margin-top: 12px; border-radius: 1.5rem; padding: 20px; border: 1px solid #f1f1f1; background: #fafafa; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .option-btn { transition: all 0.2s; border: 1px solid #eee; background: white; }
-        .option-btn.active { background: black; color: white; border-color: black; }
-        .model-chip { padding: 6px 16px; border-radius: 99px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; border: 1px solid #eee; background: white; white-space: nowrap; }
-        .model-chip.active { background: black; color: white; border-color: black; }
-        .chat-input-wrapper { border: 1px solid #eee; border-radius: 2rem; background: white; padding: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .sidebar-item { transition: all 0.2s; border-radius: 1rem; margin-bottom: 4px; }
-        .sidebar-item:hover { background: #f5f5f5; }
-        .profile-popup { position: absolute; bottom: 80px; left: 16px; right: 16px; border-radius: 1.5rem; display: none; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        :root { --accent: #000; }
+        .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .sidebar-item { transition: all 0.2s; border-radius: 12px; margin-bottom: 4px; padding: 12px; cursor: pointer; font-size: 13px; font-weight: 700; }
+        .sidebar-item:hover { background: #f3f4f6; }
+        .sidebar-item.active { background: #f3f4f6; }
+        .profile-menu { position: absolute; bottom: 100px; left: 16px; right: 16px; border-radius: 1.5rem; display: none; z-index: 2000; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes popUp { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .chat-input-container { border: 1px solid #eee; border-radius: 2.5rem; background: white; padding: 8px; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.04); transition: all 0.3s; }
+        .chat-input-container:focus-within { border-color: #ddd; box-shadow: 0 15px 40px -5px rgba(0,0,0,0.06); }
+        .thinking-toggle { display: flex; items-center: center; gap: 8px; padding: 6px 12px; border-radius: 99px; background: #f9fafb; border: 1px solid #f1f1f1; cursor: pointer; transition: all 0.2s; }
+        .thinking-toggle.active { background: #000; color: white; border-color: #000; }
+        .mode-chip { padding: 8px 16px; border-radius: 99px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.2s; border: 1px solid #f1f1f1; background: white; white-space: nowrap; }
+        .mode-chip.active { background: black; color: white; border-color: black; }
+        .settings-panel { display: none; margin-top: 12px; border-radius: 2rem; padding: 24px; background: #fcfcfc; border: 1px solid #f1f1f1; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .size-btn { flex: 1; padding: 10px; border-radius: 14px; font-size: 11px; font-weight: 800; background: white; border: 1px solid #eee; transition: all 0.2s; }
+        .size-btn.active { background: black; color: white; border-color: black; }
+        .mode-popup { position: absolute; bottom: 100%; right: 0; margin-bottom: 15px; width: 180px; border-radius: 1.5rem; display: none; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.1); overflow: hidden; }
+        .mode-popup-item { display: flex; items-center: center; gap: 12px; padding: 14px 20px; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 700; }
+        .mode-popup-item:hover { background: #f9fafb; }
     </style>
 </head>
 <body class="bg-white text-gray-900 overflow-hidden">
 
-    <div id="overlay" class="fixed inset-0 bg-black/5 backdrop-blur-[2px] hidden z-[900]"></div>
+    <div id="overlay" class="fixed inset-0 bg-black/5 backdrop-blur-[1px] hidden z-[900]"></div>
 
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#fcfcfc] border-r border-gray-100 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 h-full z-[1000]">
         <div class="p-6 space-y-6">
             <div class="flex justify-between items-center">
                 <button id="langToggle" class="bg-gray-100 px-4 py-2 rounded-xl font-black text-[10px] tracking-widest hover:bg-gray-200 transition-all">EN</button>
-                <img src="logo.jpg" class="w-9 h-9 rounded-full shadow-sm">
+                <img src="logo.jpg" class="w-10 h-10 rounded-full shadow-sm">
             </div>
             <button id="newChatBtn" class="w-full bg-white border border-gray-100 p-4 rounded-2xl font-bold flex items-center gap-3 shadow-sm active:scale-95 transition-all">
                 <i class="fa-solid fa-plus text-xs"></i>
@@ -44,131 +51,133 @@
         </div>
         
         <div id="historyList" class="flex-1 overflow-y-auto px-4 hide-scrollbar">
-            <p data-i18n="common.recent" class="text-[10px] font-black text-gray-400 mb-4 px-2 uppercase tracking-widest">الأخيرة</p>
+            <p data-i18n="common.recent" class="text-[10px] font-black text-gray-400 mb-4 px-3 uppercase tracking-widest">الأخيرة</p>
             <div id="recentList" class="space-y-1"></div>
         </div>
 
+        <!-- Mandatory User Info & Profile Menu -->
         <div class="p-4 border-t border-gray-50 relative">
-            <!-- Profile Popup -->
-            <div id="profilePopup" class="profile-popup glass p-2 border border-gray-100">
-                <div class="p-3 border-b border-gray-50 mb-1">
-                    <p id="userNameDisplay" class="text-xs font-black"></p>
-                    <p id="userEmailDisplay" class="text-[10px] text-gray-400 truncate"></p>
-                </div>
-                <button onclick="window.navigateTo('privacy.html')" class="w-full text-right p-3 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-gray-400"></i> <span data-i18n="common.privacy_policy">سياسة الخصوصية</span>
+            <div id="profileMenu" class="profile-menu glass border border-gray-100 p-2">
+                <button onclick="window.navigateTo('privacy.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
+                    <i class="fa-solid fa-shield-check text-gray-400"></i> <span data-i18n="common.privacy_policy">سياسة الخصوصية</span>
                 </button>
-                <button onclick="window.navigateTo('terms.html')" class="w-full text-right p-3 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-2">
-                    <i class="fa-solid fa-file-contract text-gray-400"></i> <span data-i18n="common.terms_of_service">اتفاقية المستخدم</span>
+                <button onclick="window.navigateTo('terms.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
+                    <i class="fa-solid fa-file-signature text-gray-400"></i> <span data-i18n="common.terms_of_service">اتفاقية المستخدم</span>
                 </button>
-                <button onclick="window.navigateTo('about.html')" class="w-full text-right p-3 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-2">
+                <button onclick="window.navigateTo('about.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
                     <i class="fa-solid fa-circle-info text-gray-400"></i> <span data-i18n="common.about_us">من نحن</span>
                 </button>
-                <button id="deleteAccountBtn" class="w-full text-right p-3 text-xs font-bold hover:bg-red-50 rounded-xl text-red-500 flex items-center gap-2">
-                    <i class="fa-solid fa-user-xmark"></i> <span data-i18n="common.delete_account">حذف الحساب</span>
+                <div class="h-px bg-gray-50 my-1"></div>
+                <button id="deleteAccountBtn" class="w-full text-right p-3.5 text-xs font-bold hover:bg-red-50 rounded-xl text-red-500 flex items-center gap-3">
+                    <i class="fa-solid fa-user-minus"></i> <span data-i18n="common.delete_account">حذف الحساب</span>
                 </button>
-                <button id="logoutBtn" class="w-full text-right p-3 text-xs font-bold hover:bg-gray-50 rounded-xl text-gray-500 flex items-center gap-2 border-t border-gray-50 mt-1">
-                    <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="common.logout">تسجيل الخروج</span>
+                <button id="logoutBtn" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl text-gray-500 flex items-center gap-3">
+                    <i class="fa-solid fa-power-off"></i> <span data-i18n="common.logout">تسجيل الخروج</span>
                 </button>
             </div>
 
-            <div id="profileTrigger" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-2xl transition-all">
-                <img id="userPhoto" src="logo.jpg" class="w-9 h-9 rounded-full object-cover shadow-sm">
+            <div id="profileTrigger" class="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-100/50 rounded-[1.5rem] transition-all border border-transparent hover:border-gray-100">
+                <img id="userPhoto" src="logo.jpg" class="w-10 h-10 rounded-full object-cover shadow-sm border-2 border-white">
                 <div class="flex-1 truncate">
                     <p id="profileName" class="text-xs font-black truncate">Guest</p>
+                    <p id="profileEmail" class="text-[10px] text-gray-400 font-bold truncate">guest@afnanai.com</p>
                 </div>
-                <i class="fa-solid fa-ellipsis-vertical text-gray-300 text-[10px]"></i>
+                <i class="fa-solid fa-chevron-up text-gray-300 text-[10px]"></i>
             </div>
         </div>
     </aside>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen relative">
-        <header class="h-16 flex items-center px-6 border-b border-gray-50 shrink-0 gap-4">
-            <button id="sidebarToggle" class="md:hidden p-2"><i class="fa-solid fa-bars-staggered"></i></button>
-            
-            <!-- Adaptive Model Switcher -->
-            <div id="adaptiveModelList" class="flex-1 flex items-center gap-2 overflow-x-auto hide-scrollbar py-2">
-                <!-- Models will be injected here -->
-            </div>
-
-            <button id="loginBtnHeader" class="bg-black text-white px-6 py-2 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all">Login</button>
+        <header class="h-16 flex items-center px-6 border-b border-gray-50 shrink-0 gap-6">
+            <button id="sidebarToggle" class="md:hidden p-2 text-gray-600"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
+            <div id="adaptiveModelList" class="flex-1 flex items-center gap-3 overflow-x-auto hide-scrollbar py-2"></div>
+            <button id="loginBtnHeader" class="bg-black text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-lg">Login</button>
         </header>
 
-        <div id="chatWindow" class="flex-1 overflow-y-auto p-4 md:p-10 scroll-smooth">
+        <div id="chatWindow" class="flex-1 overflow-y-auto p-4 md:p-12 scroll-smooth">
             <div id="emptyView" class="h-full flex flex-col items-center justify-center opacity-10 select-none">
-                <img src="logo.jpg" class="w-24 h-24 mb-6 grayscale">
-                <h1 class="text-3xl font-black tracking-tighter">Afnan AI</h1>
+                <img src="logo.jpg" class="w-28 h-28 mb-8 grayscale">
+                <h1 class="text-4xl font-black tracking-tighter">Afnan AI</h1>
             </div>
-            <div id="messageBox" class="max-w-4xl mx-auto space-y-10 pb-10"></div>
+            <div id="messageBox" class="max-w-4xl mx-auto space-y-12 pb-12"></div>
         </div>
 
-        <div class="p-4 md:p-10 pt-0 shrink-0">
+        <div class="p-4 md:p-12 pt-0 shrink-0">
             <div class="max-w-3xl mx-auto">
-                <div class="chat-input-wrapper relative">
-                    <!-- Mode Selection Popup -->
+                
+                <!-- Chat Options (Thinking & Attach) -->
+                <div id="chatOptions" class="flex items-center gap-4 mb-4 px-2">
+                    <button id="thinkingToggle" class="thinking-toggle">
+                        <i class="fa-solid fa-brain-circuit text-[10px]"></i>
+                        <span class="text-[10px] font-black uppercase tracking-wider" data-i18n="chat.thinking_mode">Thinking Mode</span>
+                    </button>
+                    <button id="fileAttachBtn" class="flex items-center gap-2 text-gray-400 hover:text-black transition-all">
+                        <i class="fa-solid fa-paperclip text-sm"></i>
+                        <span class="text-[10px] font-black uppercase tracking-wider" data-i18n="chat.attach_file">Attach</span>
+                    </button>
+                </div>
+
+                <div class="chat-input-container relative">
+                    <!-- Mode Popup -->
                     <div id="modePopup" class="mode-popup glass border border-gray-100">
-                        <div class="mode-item" onclick="window.switchMode('chat')">
-                            <i class="fa-solid fa-comment-dots text-gray-400"></i>
-                            <span data-i18n="common.chat_mode">Chat</span>
+                        <div class="mode-popup-item" onclick="window.switchMode('chat')">
+                            <i class="fa-solid fa-message-captions text-gray-400"></i> <span data-i18n="common.chat_mode">Chat</span>
                         </div>
-                        <div class="mode-item" onclick="window.switchMode('image')">
-                            <i class="fa-solid fa-wand-magic-sparkles text-blue-500"></i>
-                            <span data-i18n="common.image_gen">Image</span>
+                        <div class="mode-popup-item" onclick="window.switchMode('image')">
+                            <i class="fa-solid fa-sparkles text-blue-500"></i> <span data-i18n="common.image_gen">Image</span>
                         </div>
-                        <div class="mode-item" onclick="window.switchMode('video')">
-                            <i class="fa-solid fa-clapperboard text-purple-500"></i>
-                            <span data-i18n="common.video_gen">Video</span>
+                        <div class="mode-popup-item" onclick="window.switchMode('video')">
+                            <i class="fa-solid fa-film text-purple-500"></i> <span data-i18n="common.video_gen">Video</span>
                         </div>
                     </div>
 
-                    <div class="flex items-end gap-3 p-2">
+                    <div class="flex items-end gap-3 p-1.5">
                         <button id="mainAttachBtn" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all shrink-0">
                             <i id="attachIcon" class="fa-solid fa-plus text-xl"></i>
                         </button>
-                        <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="Ask Afnan..." class="flex-1 bg-transparent border-none focus:ring-0 py-3.5 px-1 text-[16px] font-medium resize-none max-h-48 hide-scrollbar" dir="auto"></textarea>
-                        <button id="sendBtn" class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90 shadow-lg">
-                            <i class="fa-solid fa-paper-plane-top"></i>
-                            <i class="fa-solid fa-arrow-up"></i>
+                        <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="Ask Afnan AI..." class="flex-1 bg-transparent border-none focus:ring-0 py-3.5 px-1 text-[16px] font-medium resize-none max-h-52 hide-scrollbar" dir="auto"></textarea>
+                        <button id="sendBtn" class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0 transition-all active:scale-90 shadow-xl">
+                            <i class="fa-solid fa-arrow-up text-lg"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Adaptive Settings Panel -->
                 <div id="settingsPanel" class="settings-panel">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center gap-2">
-                            <div id="modeIndicator" class="w-2 h-2 rounded-full bg-blue-500"></div>
-                            <h3 id="panelTitle" class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Settings</h3>
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center gap-3">
+                            <div id="modeIndicator" class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></div>
+                            <h3 id="panelTitle" class="text-[11px] font-black text-gray-400 uppercase tracking-widest">Settings</h3>
                         </div>
-                        <button onclick="window.hideSettings()" class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                        <button onclick="window.hideSettings()" class="text-gray-300 hover:text-red-500 transition-all"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest" data-i18n="generator.size_label">Aspect Ratio</label>
-                            <div class="flex gap-2 p-1 bg-white border border-gray-100 rounded-2xl">
-                                <button class="size-opt flex-1 py-2.5 text-[11px] font-black rounded-xl active" data-size="1:1">1:1</button>
-                                <button class="size-opt flex-1 py-2.5 text-[11px] font-black rounded-xl" data-size="9:16">9:16</button>
-                                <button class="size-opt flex-1 py-2.5 text-[11px] font-black rounded-xl" data-size="16:9">16:9</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block px-1" data-i18n="generator.size_label">Aspect Ratio</label>
+                            <div class="flex gap-2 p-1.5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                                <button class="size-btn active" data-size="1:1">1:1</button>
+                                <button class="size-btn" data-size="9:16">9:16</button>
+                                <button class="size-btn" data-size="16:9">16:9</button>
                             </div>
                         </div>
                         
-                        <div id="imageOptions" class="space-y-3">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest" data-i18n="generator.count_label">Quantity</label>
-                            <div class="flex gap-2">
-                                <button class="count-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black active" data-count="1">1x</button>
-                                <button class="count-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-count="2">2x</button>
-                                <button class="count-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-count="4">4x</button>
+                        <div id="imageOptions" class="space-y-4">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block px-1" data-i18n="generator.count_label">Quantity</label>
+                            <div class="flex gap-3">
+                                <button class="count-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black active" data-count="1">1x</button>
+                                <button class="count-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-count="2">2x</button>
+                                <button class="count-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-count="4">4x</button>
                             </div>
                         </div>
 
-                        <div id="videoOptions" class="space-y-3 hidden">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest" data-i18n="generator.duration_label">Duration</label>
-                            <div class="flex gap-2">
-                                <button class="dur-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black active" data-dur="5">5s</button>
-                                <button class="dur-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-dur="10">10s</button>
-                                <button class="dur-opt flex-1 py-3 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-dur="20">20s</button>
+                        <div id="videoOptions" class="space-y-4 hidden">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block px-1" data-i18n="generator.duration_label">Duration</label>
+                            <div class="flex gap-3">
+                                <button class="dur-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black active" data-dur="5">5s</button>
+                                <button class="dur-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-dur="10">10s</button>
+                                <button class="dur-opt flex-1 py-3.5 bg-white border border-gray-100 rounded-2xl text-[11px] font-black" data-dur="20">20s</button>
                             </div>
                         </div>
                     </div>
@@ -177,16 +186,12 @@
         </div>
     </main>
 
-    <!-- Modals -->
-    <div id="logoutConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[5000] p-6">
-        <div class="bg-white p-10 rounded-[2.5rem] text-center max-w-sm w-full shadow-2xl border border-gray-100">
-            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-right-from-bracket text-2xl text-gray-400"></i>
-            </div>
-            <h3 data-i18n="common.confirm_logout" class="text-xl font-black mb-2">Logout?</h3>
-            <p class="text-xs text-gray-400 mb-8 font-medium">Are you sure you want to end your session?</p>
-            <div class="flex gap-3">
-                <button id="confirmYes" class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest">Yes, Logout</button>
+    <!-- Global Modals -->
+    <div id="logoutConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[5000] p-6">
+        <div class="bg-white p-10 rounded-[3rem] text-center max-w-sm w-full shadow-2xl border border-gray-100">
+            <h3 data-i18n="common.confirm_logout" class="text-xl font-black mb-8">Logout?</h3>
+            <div class="flex gap-4">
+                <button id="confirmYes" class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest">Logout</button>
                 <button id="confirmNo" class="flex-1 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">Cancel</button>
             </div>
         </div>
