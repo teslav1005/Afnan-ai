@@ -2,164 +2,35 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Afnan AI - Global Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/i18next@23.2.3/dist/umd/i18next.min.js"></script>
-    <script src="https://unpkg.com/i18next-http-backend@2.2.1/i18nextHttpBackend.min.js"></script>
-    <script src="https://unpkg.com/i18next-browser-languagedetector@7.1.0/i18nextBrowserLanguageDetector.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Afnan AI</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #000; }
-        .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0, 0, 0, 0.05); }
-        .sidebar-item { padding: 12px 16px; border-radius: 14px; margin-bottom: 4px; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.2s; }
-        .sidebar-item:hover { background: #f3f4f6; }
-        .sidebar-item.active { background: #000; color: #fff; }
-        .profile-menu { position: absolute; bottom: 100px; left: 16px; right: 16px; border-radius: 1.5rem; display: none; z-index: 2000; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes popUp { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .chat-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; background: #fff; border: 1.5px solid #eee; border-radius: 2.5rem; padding: 8px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05); transition: all 0.3s; }
-        .chat-container:focus-within { border-color: #000; box-shadow: 0 25px 50px -10px rgba(0,0,0,0.08); }
-        .input-area { width: 100%; background: transparent; border: none; outline: none; padding: 12px 16px; font-size: 16px; font-weight: 500; resize: none; max-height: 200px; min-height: 52px; }
-        .mode-btn { padding: 8px 16px; border-radius: 99px; font-size: 11px; font-weight: 800; background: #f9fafb; border: 1px solid #f1f1f1; transition: all 0.2s; white-space: nowrap; }
-        .mode-btn.active { background: #000; color: #fff; border-color: #000; }
-        .settings-bar { display: none; padding: 12px 16px; border-top: 1px solid #f9fafb; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .size-chip { padding: 6px 14px; border-radius: 10px; font-size: 10px; font-weight: 800; background: #f9fafb; border: 1px solid #f1f1f1; }
-        .size-chip.active { background: #000; color: #fff; border-color: #000; }
-        .popover { position: absolute; bottom: 100%; left: 0; margin-bottom: 12px; background: #fff; border: 1px solid #eee; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.08); display: none; z-index: 100; overflow: hidden; min-width: 160px; }
-        .popover-item { padding: 12px 20px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
-        .popover-item:hover { background: #f9fafb; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-white text-black overflow-hidden h-screen flex">
+<body>
 
-    <div id="overlay" class="fixed inset-0 bg-black/5 backdrop-blur-[1px] hidden z-[900]"></div>
+    <iframe 
+        src="https://preview.hom-ai.com" 
+        allow="camera; microphone; clipboard-read; clipboard-write; display-capture" 
+        allowfullscreen>
+    </iframe>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#fcfcfc] border-r border-gray-100 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 h-full z-[1000]">
-        <div class="p-6 space-y-6">
-            <div class="flex justify-between items-center">
-                <button id="langToggle" class="bg-gray-100 px-4 py-2 rounded-xl font-black text-[10px] tracking-widest hover:bg-gray-200">EN</button>
-                <img src="logo.jpg" class="w-10 h-10 rounded-full">
-            </div>
-            <button id="newChatBtn" class="w-full bg-white border border-gray-100 p-4 rounded-2xl font-bold flex items-center gap-3 shadow-sm active:scale-95 transition-all">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span data-i18n="common.new_chat">محادثة جديدة</span>
-            </button>
-        </div>
-        
-        <div id="historyList" class="flex-1 overflow-y-auto px-4 hide-scrollbar">
-            <p data-i18n="common.recent" class="text-[10px] font-black text-gray-400 mb-4 px-3 uppercase tracking-widest">الأخيرة</p>
-            <div id="recentList" class="space-y-1"></div>
-        </div>
-
-        <div class="p-4 border-t border-gray-50 relative">
-            <div id="profileMenu" class="profile-menu glass p-2">
-                <button onclick="window.navigateTo('privacy.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
-                    <i class="fa-solid fa-shield-check text-gray-400"></i> <span data-i18n="common.privacy_policy">سياسة الخصوصية</span>
-                </button>
-                <button onclick="window.navigateTo('terms.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
-                    <i class="fa-solid fa-file-signature text-gray-400"></i> <span data-i18n="common.terms_of_service">اتفاقية المستخدم</span>
-                </button>
-                <button onclick="window.navigateTo('about.html')" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl flex items-center gap-3">
-                    <i class="fa-solid fa-circle-info text-gray-400"></i> <span data-i18n="common.about_us">من نحن</span>
-                </button>
-                <div class="h-px bg-gray-50 my-1"></div>
-                <button id="logoutBtn" class="w-full text-right p-3.5 text-xs font-bold hover:bg-gray-50 rounded-xl text-gray-500 flex items-center gap-3">
-                    <i class="fa-solid fa-power-off"></i> <span data-i18n="common.logout">تسجيل الخروج</span>
-                </button>
-            </div>
-
-            <div id="profileTrigger" class="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-100/50 rounded-[1.5rem] transition-all border border-transparent hover:border-gray-100">
-                <img id="userPhoto" src="logo.jpg" class="w-10 h-10 rounded-full object-cover shadow-sm border-2 border-white">
-                <div class="flex-1 truncate">
-                    <p id="profileName" class="text-xs font-black truncate">Guest</p>
-                    <p id="profileEmail" class="text-[10px] text-gray-400 font-bold truncate">guest@afnanai.com</p>
-                </div>
-                <i class="fa-solid fa-chevron-up text-gray-300 text-[10px]"></i>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Main -->
-    <main class="flex-1 flex flex-col h-screen relative bg-white">
-        <header class="h-16 flex items-center px-6 border-b border-gray-50 shrink-0 gap-4">
-            <button id="sidebarToggle" class="md:hidden p-2"><i class="fa-solid fa-bars-staggered text-xl"></i></button>
-            <div id="modelChips" class="flex-1 flex items-center gap-2 overflow-x-auto hide-scrollbar py-2"></div>
-            <button id="loginBtnHeader" class="bg-black text-white px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-lg">Login</button>
-        </header>
-
-        <div id="chatWindow" class="flex-1 overflow-y-auto p-4 md:p-12 scroll-smooth">
-            <div id="emptyView" class="h-full flex flex-col items-center justify-center opacity-10 select-none">
-                <img src="logo.jpg" class="w-24 h-24 mb-6 grayscale">
-                <h1 class="text-4xl font-black tracking-tighter">Afnan AI</h1>
-            </div>
-            <div id="messageBox" class="max-w-4xl mx-auto space-y-12 pb-12"></div>
-        </div>
-
-        <!-- Central Control Input Area -->
-        <div class="p-4 md:p-12 pt-0 shrink-0 bg-white">
-            <div class="max-w-3xl mx-auto">
-                
-                <!-- Quick Options Above Input -->
-                <div id="quickOptions" class="flex items-center gap-4 mb-4 px-4">
-                    <button id="thinkingToggle" class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100 transition-all">
-                        <i class="fa-solid fa-brain-circuit text-[10px] text-gray-400"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest" data-i18n="chat.thinking_mode">Thinking Mode</span>
-                    </button>
-                    <button id="fileBtn" class="flex items-center gap-2 text-gray-400 hover:text-black transition-all">
-                        <i class="fa-solid fa-paperclip text-sm"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest" data-i18n="chat.attach_file">Attach</span>
-                    </button>
-                </div>
-
-                <div class="chat-container">
-                    <!-- Mode Switcher Popover -->
-                    <div id="modePopover" class="popover">
-                        <div class="popover-item" onclick="window.switchMode('chat')">
-                            <i class="fa-solid fa-message-captions text-gray-400"></i> <span data-i18n="common.chat_mode">Chat</span>
-                        </div>
-                        <div class="popover-item" onclick="window.switchMode('image')">
-                            <i class="fa-solid fa-sparkles text-blue-500"></i> <span data-i18n="common.image_gen">Image</span>
-                        </div>
-                        <div class="popover-item" onclick="window.switchMode('video')">
-                            <i class="fa-solid fa-film text-purple-500"></i> <span data-i18n="common.video_gen">Video</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-end gap-2 p-1">
-                        <button id="modeTrigger" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-50 shrink-0 transition-all">
-                            <i id="modeIcon" class="fa-solid fa-plus text-xl"></i>
-                        </button>
-                        <textarea id="chatInput" rows="1" data-i18n="[placeholder]chat.input_placeholder" placeholder="Ask Afnan AI..." class="input-area hide-scrollbar" dir="auto"></textarea>
-                        <button id="sendBtn" class="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shrink-0 shadow-lg active:scale-90 transition-all">
-                            <i class="fa-solid fa-arrow-up text-lg"></i>
-                        </button>
-                    </div>
-
-                    <!-- Contextual Settings Bar (Inside Container) -->
-                    <div id="settingsBar" class="settings-bar">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest mr-2" data-i18n="generator.size_label">Ratio</span>
-                                <button class="size-chip active" data-size="1:1">1:1</button>
-                                <button class="size-chip" data-size="9:16">9:16</button>
-                                <button class="size-chip" data-size="16:9">16:9</button>
-                            </div>
-                            <div id="extraOptions" class="flex items-center gap-2">
-                                <!-- Dynamic options like duration/count -->
-                            </div>
-                            <button onclick="window.hideSettings()" class="text-gray-300 hover:text-red-500 transition-all ml-auto"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script type="module" src="script.js"></script>
 </body>
 </html>
