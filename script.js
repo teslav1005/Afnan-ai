@@ -38,13 +38,19 @@ document.addEventListener('keydown', (event) => { if (event.key === 'Escape') cl
 
 const menuBtn = document.getElementById('menuBtn');
 const mobileNav = document.getElementById('mobileNav');
+const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+const hero = document.querySelector('.hero');
 menuBtn.addEventListener('click', () => {
   const isOpen = mobileNav.classList.toggle('open');
+  mobileNavBackdrop.classList.toggle('open', isOpen);
+  hero.classList.toggle('menu-open', isOpen);
   menuBtn.setAttribute('aria-expanded', String(isOpen));
   menuBtn.setAttribute('aria-label', isOpen ? 'إغلاق القائمة' : 'فتح القائمة');
 });
 document.querySelectorAll('#mobileNav a').forEach((link) => link.addEventListener('click', () => {
   mobileNav.classList.remove('open');
+  mobileNavBackdrop.classList.remove('open');
+  hero.classList.remove('menu-open');
   menuBtn.setAttribute('aria-expanded', 'false');
   menuBtn.setAttribute('aria-label', 'فتح القائمة');
 }));
