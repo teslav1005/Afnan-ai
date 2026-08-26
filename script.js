@@ -36,7 +36,15 @@ closeLightbox.addEventListener('click', closeGallery);
 lightbox.addEventListener('click', (event) => { if (event.target === lightbox) closeGallery(); });
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeGallery(); });
 
-document.getElementById('menuBtn').addEventListener('click', () => {
-  document.getElementById('siteNav').classList.toggle('open');
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  const isOpen = mobileNav.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', String(isOpen));
+  menuBtn.setAttribute('aria-label', isOpen ? 'إغلاق القائمة' : 'فتح القائمة');
 });
-document.querySelectorAll('#siteNav a').forEach((link) => link.addEventListener('click', () => document.getElementById('siteNav').classList.remove('open')));
+document.querySelectorAll('#mobileNav a').forEach((link) => link.addEventListener('click', () => {
+  mobileNav.classList.remove('open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  menuBtn.setAttribute('aria-label', 'فتح القائمة');
+}));
